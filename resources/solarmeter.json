@@ -1,0 +1,26 @@
+{
+  [
+    "time": 1618518004,
+    "sensor_id": 1,
+    "input": [
+               "voltage_1": 304.506622,
+               "current_1": 2.844574,
+               "power_1": 866.191528,
+               "voltage_2": 302.308868,
+               "current_2": 2.888076,
+               "power_2": 873.091003
+             ],
+    "grid": [
+              "voltage": 233.888977,
+              "current": 7.155008,
+              "power": 1687.964111,
+              "frequency": 49.997002
+            ],
+    "stats": [
+               "efficiency": 97.0,
+               "temp_inverter": 43.141850,
+               "temp_booster": 39.591328,
+               "energy_total": 46353.912
+             ]
+  ]
+}
