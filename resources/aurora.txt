@@ -21,3 +21,9 @@ Monthly Energy             =     216.054 kWh
 Yearly Energy              =     830.639 kWh
 Total Energy               =   46353.912 kWh
 Partial Energy             =   46353.808 kWh
+
+Global State:          Run
+Inverter State:        Run
+Channel 1 Dc/Dc State: MPPT
+Channel 2 Dc/Dc State: MPPT
+Alarm State:           No Alarm

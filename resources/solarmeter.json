@@ -18,9 +18,16 @@
             ],
     "stats": [
                "efficiency": 97.0,
-               "temp_inverter": 43.141850,
-               "temp_booster": 39.591328,
-               "energy_total": 46353.912
+               "inverter_temp": 43.141850,
+               "booster_temp": 39.591328,
+               "total_energy": 46353.912
+             ],
+    "state": [
+               "global": "Run",
+               "inverter": "Run",
+               "channel_1": "MPPT",
+               "channel_2": "MPPT",
+               "alarm": "No Alarm"
              ]
   ]
 }
