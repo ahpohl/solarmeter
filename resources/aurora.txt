@@ -27,3 +27,24 @@ Inverter State:        Run
 Channel 1 Dc/Dc State: MPPT
 Channel 2 Dc/Dc State: MPPT
 Alarm State:           No Alarm
+
+Extended DSP Reporting
+Vbulk                           =  371.053436 V
+Isolation Resistance (Riso)     =   12.943206 Mohm
+Power Peak Today                = 4430.528320 W  
+Pin 1                           = 1698.902344 W
+Pin 2                           = 1707.328003 W
+
+Vbulk Mid                       =  194.630402 V  
+Vbulk (Dc/Dc)                   =  379.215363 V
+
+Ileak (Dc/Dc) Reading           =    0.000000 A
+Ileak (Inverter) Reading        =    0.000000 A
+
+Grid Voltage (Dc/Dc)            =  235.550369 V
+Grid Voltage Average (VgridAvg) =  236.138977 V  
+Grid Voltage neutral            =  292.450226 V  
+Grid Frequency (Dc/Dc)          =   50.016006 Hz
+
+Power Peak                      = 4589.142090 W  
+Wind Generator Frequency        =    0.000000 Hz

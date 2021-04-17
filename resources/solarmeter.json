@@ -28,6 +28,10 @@
                "channel_1": "MPPT",
                "channel_2": "MPPT",
                "alarm": "No Alarm"
-             ]
+             ],
+    "extended": [
+                  "Vbulk": 371.053436,
+                  "Riso": 12.943206
+                ] 
   ]
 }
