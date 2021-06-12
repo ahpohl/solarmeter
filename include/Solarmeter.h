@@ -1,0 +1,59 @@
+#ifndef Solarmeter_h
+#define Solarmeter_h
+#include <ABBAurora.h>
+#include "SolarmeterMqtt.h"
+#include "SolarmeterConfig.h"
+
+class Solarmeter
+{
+  static const std::set<std::string> ValidKeys;
+
+private:
+  ABBAurora *Inverter;
+  SolarmeterMqtt *Mqtt;
+  SolarmeterConfig *Cfg;
+  std::stringstream Payload;
+  std::string Config;
+  std::string ErrorMessage;
+  bool Log;
+
+  template <typename T>
+  T StringTo(const std::string &str) const;
+ 
+public:
+  Solarmeter(const bool &log);
+  ~Solarmeter(void);
+  bool Setup(const std::string &config);
+  bool Receive(void);
+  bool Publish(void);
+  std::string GetErrorMessage(void) const;
+  std::string GetPayload(void) const;
+  
+  struct Datagram
+  {
+    std::string Status;       // Global state of inverter
+    std::string SerialNum;    // Serial number
+    std::string PartNum;      // Part number
+    std::string MfgDate;      // Manufacturing date
+    std::string Firmware;     // Firmware version
+    std::string InverterType; // Inverter type indoor/outdoor
+    std::string GridStandard; // Grid standard
+    float Voltage1;           // Voltage pin 1 [V]
+    float Current1;           // Current pin 1 [A]
+    float Power1;             // Power pin 1 [W]
+    float Voltage2;           // Voltage pin 2 [V]
+    float Current2;           // Current pin 2 [A]
+    float Power2;             // Power pin 2 [W]
+    float GridVoltage;        // Grid voltage [V]
+    float GridCurrent;        // Grid current [A]
+    float GridPower;          // Grid power [W]
+    float Frequency;          // Grid frequency [Hz]
+    float Efficiency;         // AC/DC conversion efficiency [%]
+    float BoosterTemp;        // Booster temperature [°C]
+    float InverterTemp;       // Inverter temperature [°C]
+    float LifetimeEnergy;     // Lifetime total energy [kWh]
+    float PaymentKwh;         // Payment per kWh
+  } Datagram;
+};
+
+#endif
