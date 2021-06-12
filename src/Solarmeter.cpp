@@ -127,7 +127,6 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  
   if (!Inverter->ReadSerialNumber(Datagram.SerialNum))
   {
     ErrorMessage = Inverter->GetErrorMessage();
@@ -149,7 +148,7 @@ bool Solarmeter::Receive(void)
     return false;
   }
   Datagram.MfgDate = std::string("Year ") + mfg_date.Year + " Week " + mfg_date.Week;
-  
+
   ABBAurora::Version version;
   if (!Inverter->ReadVersion(version))
   {
@@ -157,8 +156,75 @@ bool Solarmeter::Receive(void)
     return false;
   }
   Datagram.InverterType = version.Par1;
-  Datagram.GridStandard = version.Par2; 
+  Datagram.GridStandard = version.Par2;
 
+  if (!Inverter->ReadCumulatedEnergy(Datagram.TotalEnergy, CumulatedEnergyEnum::LIFETIME_TOTAL))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.VoltageP1, DspValueEnum::V_IN_1))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.CurrentP1, DspValueEnum::I_IN_1))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.PowerP1, DspValueEnum::POWER_IN_1))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.VoltageP2, DspValueEnum::V_IN_2))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.CurrentP2, DspValueEnum::I_IN_2))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.PowerP2, DspValueEnum::POWER_IN_2))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.GridVoltage, DspValueEnum::GRID_VOLTAGE))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.GridCurrent, DspValueEnum::GRID_CURRENT))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.GridPower, DspValueEnum::GRID_POWER))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.Frequency, DspValueEnum::FREQUENCY))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.InverterTemp, DspValueEnum::TEMPERATURE_INVERTER))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->ReadDspValue(Datagram.BoosterTemp, DspValueEnum::TEMPERATURE_BOOSTER))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  
+  Datagram.Efficiency = Datagram.GridPower / (Datagram.PowerP1 + Datagram.PowerP2) * 100.0;  
   return true;
 }
 
@@ -182,8 +248,8 @@ bool Solarmeter::Publish(void)
     << "\"grid_power\":" << Datagram.GridPower << ","
     << "\"frequency\":" << Datagram.Frequency << ","
     << "\"efficiency\":" << Datagram.Efficiency << ","
-    << "\"booster_temp\":" << Datagram.BoosterTemp << ","
     << "\"inverter_temp\":" << Datagram.InverterTemp << ","
+    << "\"booster_temp\":" << Datagram.BoosterTemp << ","
     << "\"payment\":" << Cfg->GetValue("payment_kwh") << ","
     << "},{"
     << "\"serial_num\":\"" << Datagram.SerialNum << "\","

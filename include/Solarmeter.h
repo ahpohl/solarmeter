@@ -49,8 +49,8 @@ public:
     float GridPower;          // Grid power [W]
     float Frequency;          // Grid frequency [Hz]
     float Efficiency;         // AC/DC conversion efficiency [%]
-    float BoosterTemp;        // Booster temperature [°C]
     float InverterTemp;       // Inverter temperature [°C]
+    float BoosterTemp;        // Booster temperature [°C]
     float TotalEnergy;        // Lifetime total energy [kWh]
     float PaymentKwh;         // Payment per kWh
   } Datagram;
