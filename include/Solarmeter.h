@@ -38,12 +38,12 @@ public:
     std::string Firmware;     // Firmware version
     std::string InverterType; // Inverter type indoor/outdoor
     std::string GridStandard; // Grid standard
-    float Voltage1;           // Voltage pin 1 [V]
-    float Current1;           // Current pin 1 [A]
-    float Power1;             // Power pin 1 [W]
-    float Voltage2;           // Voltage pin 2 [V]
-    float Current2;           // Current pin 2 [A]
-    float Power2;             // Power pin 2 [W]
+    float VoltageP1;          // Voltage pin 1 [V]
+    float CurrentP1;          // Current pin 1 [A]
+    float PowerP1;            // Power pin 1 [W]
+    float VoltageP2;          // Voltage pin 2 [V]
+    float CurrentP2;          // Current pin 2 [A]
+    float PowerP2;            // Power pin 2 [W]
     float GridVoltage;        // Grid voltage [V]
     float GridCurrent;        // Grid current [A]
     float GridPower;          // Grid power [W]
@@ -51,7 +51,7 @@ public:
     float Efficiency;         // AC/DC conversion efficiency [%]
     float BoosterTemp;        // Booster temperature [°C]
     float InverterTemp;       // Inverter temperature [°C]
-    float LifetimeEnergy;     // Lifetime total energy [kWh]
+    float TotalEnergy;        // Lifetime total energy [kWh]
     float PaymentKwh;         // Payment per kWh
   } Datagram;
 };

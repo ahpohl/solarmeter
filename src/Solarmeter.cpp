@@ -162,30 +162,36 @@ bool Solarmeter::Receive(void)
   return true;
 }
 
-/*
 bool Solarmeter::Publish(void)
 {
   unsigned long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   Payload.str(std::string());
 
   Payload << "[{"
-    << "\"lifetime\":" << Datagram.SensorTime << "," 
-    << "\"energy\":" << RemoveLeading(Datagram.Energy, '0') << ","
-    << "\"power\":" << RemoveLeading(Datagram.Power, '0') << ","
-    << "\"power_l1\":" << RemoveLeading(Datagram.PowerL1, '0') << ","
-    << "\"power_l2\":" << RemoveLeading(Datagram.PowerL2, '0') << ","
-    << "\"power_l3\":" << RemoveLeading(Datagram.PowerL3, '0') << ","
-    << "\"voltage_l1\":" << RemoveLeading(Datagram.VoltageL1, '0') << ","
-    << "\"voltage_l2\":" << RemoveLeading(Datagram.VoltageL2, '0') << ","
-    << "\"voltage_l3\":" << RemoveLeading(Datagram.VoltageL3, '0') << ","
-    << "\"status\":\"" << Datagram.Status << "\"" << ","
-    << "\"rate\":"  << Cfg->GetValue("plan_basic_rate") << ","
-    << "\"price\":" << Cfg->GetValue("plan_price_kwh") << ","
-    << "\"time\":" << now
+    << "\"time\":" << now << ","
+    << "\"status\":\"" << Datagram.Status << "\"" << ","   
+    << "\"total_energy\":" << Datagram.TotalEnergy << "," 
+    << "\"voltage_p1\":" << Datagram.VoltageP1 << ","
+    << "\"current_p1\":" << Datagram.CurrentP1 << ","
+    << "\"power_p1\":" << Datagram.PowerP1 << ","
+    << "\"voltage_p2\":" << Datagram.VoltageP2 << ","
+    << "\"current_p2\":" << Datagram.CurrentP2 << ","
+    << "\"power_p2\":" << Datagram.PowerP2 << ","
+    << "\"grid_voltage\":" << Datagram.GridVoltage << ","
+    << "\"grid_current\":" << Datagram.GridCurrent << ","
+    << "\"grid_power\":" << Datagram.GridPower << ","
+    << "\"frequency\":" << Datagram.Frequency << ","
+    << "\"efficiency\":" << Datagram.Efficiency << ","
+    << "\"booster_temp\":" << Datagram.BoosterTemp << ","
+    << "\"inverter_temp\":" << Datagram.InverterTemp << ","
+    << "\"payment\":" << Cfg->GetValue("payment_kwh") << ","
     << "},{"
-    << "\"serial\":\"" << Datagram.SerialNum << "\","
-    << "\"custom_id\":\"" << Datagram.CustomId << "\","
-    << "\"device_id\":\"" << Datagram.DeviceId << "\""
+    << "\"serial_num\":\"" << Datagram.SerialNum << "\","
+    << "\"part_num\":\"" << Datagram.PartNum << "\","
+    << "\"mfg_date\":\"" << Datagram.MfgDate << "\","
+    << "\"firmware\":\"" << Datagram.Firmware << "\","
+    << "\"inverter_type\":\"" << Datagram.InverterType << "\"," 
+    << "\"grid_standard\":\"" << Datagram.GridStandard << "\""
     << "}]";
 
   static bool last_connect_status = true;
@@ -210,7 +216,6 @@ bool Solarmeter::Publish(void)
  
   return true;
 }
-*/
 
 std::string Solarmeter::GetErrorMessage(void) const
 {

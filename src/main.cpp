@@ -2,6 +2,8 @@
 #include <memory>
 #include <getopt.h>
 #include <csignal>
+#include <thread>
+#include <chrono>
 #include <Solarmeter.h>
 
 volatile sig_atomic_t shutdown = false;
@@ -61,7 +63,7 @@ int main(int argc, char* argv[])
   if (help)
   {
     std::cout << "Solarmeter " << VERSION_TAG << std::endl;
-    std::cout << std::endl << "Usage: " << argv[0] << " [-vvv] -c [file]" << std::endl;
+    std::cout << std::endl << "Usage: " << argv[0] << " [-vv] -c [file]" << std::endl;
     std::cout << "\n\
   -h --help         Show help message\n\
   -V --version      Show build info\n\
@@ -83,7 +85,7 @@ int main(int argc, char* argv[])
   std::cout << "Solarmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  bool log = (verbose_level == 3) ? true : false;
+  bool log = (verbose_level == 2) ? true : false;
   std::unique_ptr<Solarmeter> meter(new Solarmeter(log));
   
   if (!meter->Setup(config))
@@ -99,23 +101,15 @@ int main(int argc, char* argv[])
 	    std::cout << meter->GetErrorMessage() << std::endl;
       return EXIT_FAILURE;
  	  }
-    /*
     if (!meter->Publish())
     {
       std::cout << meter->GetErrorMessage() << std::endl;
     }
-    */
-    switch (verbose_level)
+    if (verbose_level == 1)
     {
-      case 2:
-        //std::cout << meter->GetReceiveBuffer();
-        break;
-      case 1:
-        std::cout << meter->GetPayload() << std::endl;
-        break;
-      default:
-        break;
+      std::cout << meter->GetPayload() << std::endl;
     }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
  
   return EXIT_SUCCESS;
