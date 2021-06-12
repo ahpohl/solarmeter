@@ -3,6 +3,7 @@
 #include <charconv>
 #include <chrono>
 #include <thread>
+#include <stdexcept>
 #include "Solarmeter.h"
 
 const std::set<std::string> Solarmeter::ValidKeys {"mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "payment_kwh", "serial_device"};
@@ -232,8 +233,20 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  
-  Datagram.Efficiency = Datagram.GridPower / (Datagram.PowerP1 + Datagram.PowerP2) * 100.0;  
+  try
+  {
+    float denominator = (Datagram.PowerP1 + Datagram.PowerP2) * 100.0;
+    if (denominator == 0)
+    {
+      throw std::runtime_error("Math error: Attempted to divide by Zero");
+    } 
+    Datagram.Efficiency = Datagram.GridPower / denominator;
+  }
+  catch (std::runtime_error& e)
+  {
+    ErrorMessage = e.what();
+    return false;
+  }
   return true;
 }
 

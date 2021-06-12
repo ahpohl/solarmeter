@@ -7,7 +7,6 @@ DROP MATERIALIZED VIEW IF EXISTS "cagg_daily" CASCADE;
 DROP TABLE IF EXISTS "archive" CASCADE;
 DROP TABLE IF EXISTS "live" CASCADE;
 DROP TABLE IF EXISTS "sensors" CASCADE;
-DROP TABLE IF EXISTS "plan" CASCADE;
 
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
@@ -21,14 +20,10 @@ CREATE TABLE "sensors" (
   grid_standard VARCHAR(50)
 );
 
-CREATE TABLE "plan" (
-  id SERIAL PRIMARY KEY,
-  payment DOUBLE PRECISION
-);
-
 CREATE TABLE "live" (
   time TIMESTAMPTZ NOT NULL,
   sensor_id INTEGER NOT NULL,
+  total_energy DOUBLE PRECISION,
   voltage_p1 DOUBLE PRECISION,
   current_p1 DOUBLE PRECISION,
   power_p1 DOUBLE PRECISION,
@@ -44,7 +39,7 @@ CREATE TABLE "live" (
   booster_temp DOUBLE PRECISION,
   r_iso DOUBLE PRECISION,
   payment DOUBLE PRECISION,
-  CONSTRAINT sensor_id FOREIGN KEY (sensor_id) REFERENCES sensors (id),
+  CONSTRAINT sensor_id FOREIGN KEY (sensor_id) REFERENCES sensors (id)
 );
 
 SELECT create_hypertable('live', 'time');
