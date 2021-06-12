@@ -96,20 +96,21 @@ int main(int argc, char* argv[])
 
   while (shutdown == false)
   {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 	  if (!meter->Receive())
 	  {
 	    std::cout << meter->GetErrorMessage() << std::endl;
-      return EXIT_FAILURE;
+      continue;
  	  }
     if (!meter->Publish())
     {
       std::cout << meter->GetErrorMessage() << std::endl;
+      continue;
     }
     if (verbose_level == 1)
     {
       std::cout << meter->GetPayload() << std::endl;
     }
-    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
  
   return EXIT_SUCCESS;

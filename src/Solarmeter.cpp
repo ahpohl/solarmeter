@@ -120,7 +120,11 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  Datagram.Status = state.GlobalState;
+  Datagram.GlobalState = state.GlobalState;
+  Datagram.InverterState = state.InverterState;
+  Datagram.Channel1State = state.Channel1State;
+  Datagram.Channel2State = state.Channel2State;
+  Datagram.AlarmState = state.AlarmState;
 
   if (!Inverter->ReadPartNumber(Datagram.PartNum))
   {
@@ -223,6 +227,11 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
+  if (!Inverter->ReadDspValue(Datagram.RIso, DspValueEnum::ISOLATION_RESISTANCE))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
   
   Datagram.Efficiency = Datagram.GridPower / (Datagram.PowerP1 + Datagram.PowerP2) * 100.0;  
   return true;
@@ -235,7 +244,6 @@ bool Solarmeter::Publish(void)
 
   Payload << "[{"
     << "\"time\":" << now << ","
-    << "\"status\":\"" << Datagram.Status << "\"" << ","   
     << "\"total_energy\":" << Datagram.TotalEnergy << "," 
     << "\"voltage_p1\":" << Datagram.VoltageP1 << ","
     << "\"current_p1\":" << Datagram.CurrentP1 << ","
@@ -250,8 +258,14 @@ bool Solarmeter::Publish(void)
     << "\"efficiency\":" << Datagram.Efficiency << ","
     << "\"inverter_temp\":" << Datagram.InverterTemp << ","
     << "\"booster_temp\":" << Datagram.BoosterTemp << ","
-    << "\"payment\":" << Cfg->GetValue("payment_kwh") << ","
+    << "\"r_iso\":" << Datagram.RIso << ","
+    << "\"payment\":" << Cfg->GetValue("payment_kwh")
     << "},{"
+    << "\"global_state\":\"" << Datagram.GlobalState << "\"" << ","
+    << "\"inverter_state\":\"" << Datagram.InverterState << "\"" << ","
+    << "\"ch1_state\":\"" << Datagram.Channel1State << "\"" << ","
+    << "\"ch2_state\":\"" << Datagram.Channel2State << "\"" << ","
+    << "\"alarm_state\":\"" << Datagram.AlarmState << "\"" << ","
     << "\"serial_num\":\"" << Datagram.SerialNum << "\","
     << "\"part_num\":\"" << Datagram.PartNum << "\","
     << "\"mfg_date\":\"" << Datagram.MfgDate << "\","

@@ -31,7 +31,11 @@ public:
   
   struct Datagram
   {
-    std::string Status;       // Global state of inverter
+    std::string GlobalState;  // Global state
+    std::string InverterState;// Inverter state
+    std::string Channel1State;// Channel 1 state
+    std::string Channel2State;// Channel 2 state
+    std::string AlarmState;   // Alarm state
     std::string SerialNum;    // Serial number
     std::string PartNum;      // Part number
     std::string MfgDate;      // Manufacturing date
@@ -51,6 +55,7 @@ public:
     float Efficiency;         // AC/DC conversion efficiency [%]
     float InverterTemp;       // Inverter temperature [°C]
     float BoosterTemp;        // Booster temperature [°C]
+    float RIso;               // Isolation resistance [MOhm] 
     float TotalEnergy;        // Lifetime total energy [kWh]
     float PaymentKwh;         // Payment per kWh
   } Datagram;
