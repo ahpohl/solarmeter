@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cstring>
 #include <charconv>
 #include <chrono>
@@ -263,25 +264,28 @@ bool Solarmeter::Receive(void)
 bool Solarmeter::Publish(void)
 {
   unsigned long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+  
+  std::ios::fmtflags old_settings = Payload.flags();
   Payload.str(std::string());
+  Payload.setf(std::ios::fixed, std::ios::floatfield);
 
   Payload << "[{"
     << "\"time\":" << now << ","
-    << "\"total_energy\":" << Datagram.TotalEnergy << "," 
-    << "\"voltage_p1\":" << Datagram.VoltageP1 << ","
-    << "\"current_p1\":" << Datagram.CurrentP1 << ","
-    << "\"power_p1\":" << Datagram.PowerP1 << ","
-    << "\"voltage_p2\":" << Datagram.VoltageP2 << ","
-    << "\"current_p2\":" << Datagram.CurrentP2 << ","
-    << "\"power_p2\":" << Datagram.PowerP2 << ","
-    << "\"grid_voltage\":" << Datagram.GridVoltage << ","
-    << "\"grid_current\":" << Datagram.GridCurrent << ","
-    << "\"grid_power\":" << Datagram.GridPower << ","
-    << "\"frequency\":" << Datagram.Frequency << ","
-    << "\"efficiency\":" << Datagram.Efficiency << ","
-    << "\"inverter_temp\":" << Datagram.InverterTemp << ","
-    << "\"booster_temp\":" << Datagram.BoosterTemp << ","
-    << "\"r_iso\":" << Datagram.RIso << ","
+    << "\"total_energy\":" << std::setprecision(2) << Datagram.TotalEnergy << "," 
+    << "\"voltage_p1\":" << std::setprecision(2) << Datagram.VoltageP1 << ","
+    << "\"current_p1\":" << std::setprecision(5) << Datagram.CurrentP1 << ","
+    << "\"power_p1\":" << std::setprecision(2) << Datagram.PowerP1 << ","
+    << "\"voltage_p2\":" << std::setprecision(2) << Datagram.VoltageP2 << ","
+    << "\"current_p2\":" << std::setprecision(5) << Datagram.CurrentP2 << ","
+    << "\"power_p2\":" << std::setprecision(2) << Datagram.PowerP2 << ","
+    << "\"grid_voltage\":" << std::setprecision(2) << Datagram.GridVoltage << ","
+    << "\"grid_current\":" << std::setprecision(5) << Datagram.GridCurrent << ","
+    << "\"grid_power\":" << std::setprecision(2) << Datagram.GridPower << ","
+    << "\"frequency\":" << std::setprecision(3) << Datagram.Frequency << ","
+    << "\"efficiency\":" << std::setprecision(2) << Datagram.Efficiency << ","
+    << "\"inverter_temp\":" << std::setprecision(2) << Datagram.InverterTemp << ","
+    << "\"booster_temp\":" << std::setprecision(2) << Datagram.BoosterTemp << ","
+    << "\"r_iso\":" << std::setprecision(3) << Datagram.RIso << ","
     << "\"payment\":" << Cfg->GetValue("payment_kwh")
     << "},{"
     << "\"global_state\":\"" << Datagram.GlobalState << "\"" << ","
@@ -317,6 +321,7 @@ bool Solarmeter::Publish(void)
   }
   last_connect_status = Mqtt->GetConnectStatus();
  
+  Payload.flags(old_settings);
   return true;
 }
 
