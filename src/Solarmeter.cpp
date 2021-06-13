@@ -245,12 +245,12 @@ bool Solarmeter::Receive(void)
   }
   try
   {
-    float denominator = (Datagram.PowerP1 + Datagram.PowerP2) * 100.0;
+    float denominator = Datagram.PowerP1 + Datagram.PowerP2;
     if (denominator == 0)
     {
       throw std::runtime_error("Math error: Attempted to divide by Zero");
     } 
-    Datagram.Efficiency = Datagram.GridPower / denominator;
+    Datagram.Efficiency = Datagram.GridPower / denominator * 100.0f;
   }
   catch (std::runtime_error& e)
   {

@@ -7,6 +7,7 @@ DROP MATERIALIZED VIEW IF EXISTS "cagg_daily" CASCADE;
 DROP TABLE IF EXISTS "archive" CASCADE;
 DROP TABLE IF EXISTS "live" CASCADE;
 DROP TABLE IF EXISTS "sensors" CASCADE;
+DROP TABLE IF EXISTS "plan" CASCADE;
 
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
@@ -20,9 +21,15 @@ CREATE TABLE "sensors" (
   grid_standard VARCHAR(50)
 );
 
+CREATE TABLE "plan" (
+  id SERIAL PRIMARY KEY,
+  payment DOUBLE PRECISION
+);
+
 CREATE TABLE "live" (
   time TIMESTAMPTZ NOT NULL,
   sensor_id INTEGER NOT NULL,
+  plan_id INTEGER NOT NULL,
   total_energy DOUBLE PRECISION,
   voltage_p1 DOUBLE PRECISION,
   current_p1 DOUBLE PRECISION,
@@ -38,8 +45,8 @@ CREATE TABLE "live" (
   inverter_temp DOUBLE PRECISION,
   booster_temp DOUBLE PRECISION,
   r_iso DOUBLE PRECISION,
-  payment DOUBLE PRECISION,
-  CONSTRAINT sensor_id FOREIGN KEY (sensor_id) REFERENCES sensors (id)
+  CONSTRAINT sensor_id FOREIGN KEY (sensor_id) REFERENCES sensors (id),
+  CONSTRAINT plan_id FOREIGN KEY (plan_id) REFERENCES plan (id)
 );
 
 SELECT create_hypertable('live', 'time');
@@ -48,8 +55,14 @@ SELECT add_retention_policy('live', INTERVAL '7 days');
 INSERT INTO sensors(id, serial_num, part_num, mfg_date, firmware, inverter_type, grid_standard) VALUES
 (1, '126014', '-3G79-', 'Year 10 Week 20', 'C.0.2.2', 'Aurora 4.2kW new', 'VDE0126');
 
+INSERT INTO plan(id, payment) VALUES
+(1, 0.3914);
+
 GRANT INSERT, SELECT ON TABLE live TO nodejs;
 GRANT SELECT ON TABLE live TO grafana;
 
 GRANT SELECT ON TABLE sensors TO nodejs;
 GRANT SELECT ON TABLE sensors TO grafana;
+
+GRANT SELECT ON TABLE plan TO nodejs;
+GRANT SELECT ON TABLE plan TO grafana;
