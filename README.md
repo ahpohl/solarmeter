@@ -1,6 +1,6 @@
 # Aurora Solarmeter
 
-The Solarmeter daemon outputs a JSON formatted string and sends it to a MQTT broker on the network. From there, the data is forwarded into a time series database for permanent data storage and for visualization. The complete software stack consists of the following components, which need to be installed and configured separately:
+The Solarmeter daemon is built upon the [libabbaurora](https://ahpohl.github.io/libabbaurora/) library to communicate with the ABB Aurora inverter. The daemon reads the energy production from the inverter, outputs a JSON formatted string and sends it to a MQTT broker on the network. From there, the data is forwarded into a time series database for permanent data storage and for visualization. The complete software stack consists of the following components, which need to be installed and configured separately:
 - Solarmeter daemon with RS485 dongle for data readout
 - Mosquitto MQTT broker
 - Node-RED (MQTT client, PostgreSQL and optional email alerts)
