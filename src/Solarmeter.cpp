@@ -335,9 +335,29 @@ std::string Solarmeter::GetPayload(void) const
   return Payload.str();
 }
 
-std::string Solarmeter::GetGlobalState(void) const
+bool Solarmeter::IsRunning(void) const
 {
-  return Datagram.GlobalState;
+  static int last_running_state = true;
+  int running_state = (!Datagram.GlobalState.compare("Pause")) || (!Datagram.GlobalState.compare("Freeze"));
+
+  if (last_running_state != running_state)
+  {
+    if (!running_state)
+    {
+      std::cout << "Inverter is in standby mode." << std::endl;
+    }
+    else
+    {
+      std::cout << "Inverter is running." << std::endl;
+    }
+  }
+  last_running_state = running_state;  
+
+  if (!running_state)
+  {
+    return false;
+  } 
+  return true;
 }
 
 template <typename T>

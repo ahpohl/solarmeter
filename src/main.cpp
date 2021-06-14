@@ -95,30 +95,22 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  bool standby = false;
+  bool is_running = true;
 
   while (shutdown == false)
   {
-    if ((!meter->GetGlobalState().compare("Pause")) || (!meter->GetGlobalState().compare("Freeze")))
-    {
-      std::cout << "Solarmeter in standby mode." << std::endl;
-      standby = true;
-    }
-    else
-    {
-      standby = false;
-    }
-    if (standby)
-    {
-      std::this_thread::sleep_for(std::chrono::minutes(10));
-    }
-    else
+    is_running = meter->IsRunning();
+    if (is_running)
     {
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    else
+    {
+      std::this_thread::sleep_for(std::chrono::minutes(10));
+    }
 	  if (!meter->Receive())
 	  {
-      if (!standby)
+      if (is_running)
       {
 	      std::cout << meter->GetErrorMessage() << std::endl;
       }

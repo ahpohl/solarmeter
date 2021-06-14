@@ -28,7 +28,7 @@ public:
   bool Publish(void);
   std::string GetErrorMessage(void) const;
   std::string GetPayload(void) const;
-  std::string GetGlobalState(void) const;
+  bool IsRunning(void) const;
   
   struct Datagram
   {
