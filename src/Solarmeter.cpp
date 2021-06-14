@@ -335,6 +335,11 @@ std::string Solarmeter::GetPayload(void) const
   return Payload.str();
 }
 
+std::string Solarmeter::GetGlobalState(void) const
+{
+  return Datagram.GlobalState;
+}
+
 template <typename T>
 T Solarmeter::StringTo(const std::string &str) const
 {

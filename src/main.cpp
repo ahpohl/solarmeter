@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   std::cout << "Solarmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  bool log = (verbose_level == 3) ? true : false;
+  bool log = (verbose_level == 2) ? true : false;
   std::unique_ptr<Solarmeter> meter(new Solarmeter(log));
   
   if (!meter->Setup(config))
@@ -95,12 +95,30 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  bool standby = false;
+
   while (shutdown == false)
   {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    if ((!meter->GetGlobalState().compare("Pause")) || (!meter->GetGlobalState().compare("Freeze")))
+    {
+      std::cout << "Solarmeter in standby mode." << std::endl;
+      standby = true;
+    }
+    else
+    {
+      standby = false;
+    }
+    if (standby)
+    {
+      std::this_thread::sleep_for(std::chrono::minutes(10));
+    }
+    else
+    {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 	  if (!meter->Receive())
 	  {
-      if (verbose_level == 2)
+      if (!standby)
       {
 	      std::cout << meter->GetErrorMessage() << std::endl;
       }
