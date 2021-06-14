@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   std::cout << "Solarmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  bool log = (verbose_level == 2) ? true : false;
+  bool log = (verbose_level == 3) ? true : false;
   std::unique_ptr<Solarmeter> meter(new Solarmeter(log));
   
   if (!meter->Setup(config))
@@ -95,33 +95,25 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  size_t data = 0, errors = 0;
   while (shutdown == false)
   {
-    ++data;
     std::this_thread::sleep_for(std::chrono::seconds(1));
 	  if (!meter->Receive())
 	  {
-	    std::cout << meter->GetErrorMessage() << std::endl;
-      ++errors;
+      if (verbose_level == 2)
+      {
+	      std::cout << meter->GetErrorMessage() << std::endl;
+      }
       continue;
  	  }
     if (!meter->Publish())
     {
       std::cout << meter->GetErrorMessage() << std::endl;
-      ++errors;
-      continue;
     }
     if (verbose_level == 1)
     {
       std::cout << meter->GetPayload() << std::endl;
     }
-  }
-
-  if (verbose_level == 1)
-  { 
-    double error_rate = static_cast<double>(errors) / static_cast<double>(data) * 100.0f;
-    std::cout << "Datagrams: " << data << ", Errors: " << errors << ", Rate: " << std::fixed << std::setprecision(3) << error_rate << " %" << std::endl;
   }
 
   return EXIT_SUCCESS;
