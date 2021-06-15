@@ -64,8 +64,6 @@ public:
     std::string Channel2State;// Channel 2 state
     std::string AlarmState;   // Alarm state
   };
-
-  bool operator==(const State& lhs, const State& rhs);
 };
 
 #endif

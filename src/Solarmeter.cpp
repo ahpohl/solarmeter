@@ -123,6 +123,11 @@ int Solarmeter::GetState(void)
   {
     ErrorMessage = Inverter->GetErrorMessage();
     inverter_state = -1;
+    state.GlobalState.assign("Pause");
+    state.InverterState.assign("Stand By");
+    state.Channel1State.assign("DcDc OFF");
+    state.Channel2State.assign("DcDc OFF");
+    state.AlarmState.assign("No Alarm");
   }
   else if (state.GlobalState.compare("Run") == 0)
   {
@@ -136,22 +141,22 @@ int Solarmeter::GetState(void)
   {
     inverter_state = -1;
   }
-  if (!(previous_state == state))
-  {
+  //if (!(previous_state == state))
+  //{
     std::ostringstream oss;
-    oss << "["
+    oss << "[{"
       << "\"global_state\":\"" << state.GlobalState << "\"" << ","
       << "\"inverter_state\":\"" << state.InverterState << "\"" << ","
       << "\"ch1_state\":\"" << state.Channel1State << "\"" << ","
       << "\"ch2_state\":\"" << state.Channel2State << "\"" << ","
-      << "\"alarm_state\":\"" << state.AlarmState << "\"" << "]";
+      << "\"alarm_state\":\"" << state.AlarmState << "\"" << "}]";
 
     if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return -1;
     }
-  }
+  //}
   previous_state = state;
 
   return inverter_state;
@@ -362,10 +367,4 @@ T Solarmeter::StringTo(const std::string &str) const
     return T();
   }
   return value;
-}
-
-bool Solarmeter::State::operator==(const Solarmeter::State& lhs, const Solarmeter::State& rhs);
-{
-  return std::tie(lhs.GlobalState, lhs.InverterState, lhs.Channel1State, lhs.Channel2State, lhs.AlarmState) ==
-         std::tie(rhs.GlobalState, rhs.InverterState, rhs.Channel1State, rhs.Channel2State, rhs.AlarmState);
 }
