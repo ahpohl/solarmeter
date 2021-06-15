@@ -28,16 +28,10 @@ public:
   bool Publish(void);
   std::string GetErrorMessage(void) const;
   std::string GetPayload(void) const;
-  bool IsRunning(void) const;
-  bool IsInput(void) const;
+  int GetState(void);
   
   struct Datagram
   {
-    std::string GlobalState;  // Global state
-    std::string InverterState;// Inverter state
-    std::string Channel1State;// Channel 1 state
-    std::string Channel2State;// Channel 2 state
-    std::string AlarmState;   // Alarm state
     std::string SerialNum;    // Serial number
     std::string PartNum;      // Part number
     std::string MfgDate;      // Manufacturing date
@@ -61,6 +55,17 @@ public:
     float TotalEnergy;        // Lifetime total energy [kWh]
     float PaymentKwh;         // Payment per kWh
   } Datagram;
+
+  struct State
+  {
+    std::string GlobalState;  // Global state
+    std::string InverterState;// Inverter state
+    std::string Channel1State;// Channel 1 state
+    std::string Channel2State;// Channel 2 state
+    std::string AlarmState;   // Alarm state
+  };
+
+  bool operator==(const State& lhs, const State& rhs);
 };
 
 #endif

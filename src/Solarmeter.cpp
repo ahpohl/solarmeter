@@ -114,30 +114,51 @@ bool Solarmeter::Setup(const std::string &config)
   return true;
 }
 
-bool Solarmeter::Receive(void)
+int Solarmeter::GetState(void)
 {
-  static std::string previous_state = "Unknown";
+  int inverter_state = -1;
+  static ABBAurora::State previous_state;
   ABBAurora::State state;
   if (!Inverter->ReadState(state))
   {
     ErrorMessage = Inverter->GetErrorMessage();
-    return false;
+    inverter_state = -1;
   }
-  Datagram.GlobalState = state.GlobalState;
-  Datagram.InverterState = state.InverterState;
-  Datagram.Channel1State = state.Channel1State;
-  Datagram.Channel2State = state.Channel2State;
-  Datagram.AlarmState = state.AlarmState;
-  if (previous_state.compare(state.GlobalState))
+  else if (state.GlobalState.compare("Run") == 0)
   {
-    if (!(Mqtt->PublishMessage(state.GlobalState, Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
+    inverter_state = 0;
+  }
+  else if (!((state.Channel1State.compare("MPPT") == 0) && (state.Channel2State.compare("MPPT") == 0)))
+  {
+    inverter_state = 1;
+  }
+  else
+  {
+    inverter_state = -1;
+  }
+  if (!(previous_state == state))
+  {
+    std::ostringstream oss;
+    oss << "["
+      << "\"global_state\":\"" << state.GlobalState << "\"" << ","
+      << "\"inverter_state\":\"" << state.InverterState << "\"" << ","
+      << "\"ch1_state\":\"" << state.Channel1State << "\"" << ","
+      << "\"ch2_state\":\"" << state.Channel2State << "\"" << ","
+      << "\"alarm_state\":\"" << state.AlarmState << "\"" << "]";
+
+    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
-      return false;
+      return -1;
     }
   }
-  previous_state = state.GlobalState;
+  previous_state = state;
 
+  return inverter_state;
+}
+
+bool Solarmeter::Receive(void)
+{
   if (!Inverter->ReadPartNumber(Datagram.PartNum))
   {
     ErrorMessage = Inverter->GetErrorMessage();
@@ -288,11 +309,6 @@ bool Solarmeter::Publish(void)
     << "\"r_iso\":" << std::setprecision(3) << Datagram.RIso << ","
     << "\"payment\":" << Cfg->GetValue("payment_kwh")
     << "},{"
-    << "\"global_state\":\"" << Datagram.GlobalState << "\"" << ","
-    << "\"inverter_state\":\"" << Datagram.InverterState << "\"" << ","
-    << "\"ch1_state\":\"" << Datagram.Channel1State << "\"" << ","
-    << "\"ch2_state\":\"" << Datagram.Channel2State << "\"" << ","
-    << "\"alarm_state\":\"" << Datagram.AlarmState << "\"" << ","
     << "\"serial_num\":\"" << Datagram.SerialNum << "\","
     << "\"part_num\":\"" << Datagram.PartNum << "\","
     << "\"mfg_date\":\"" << Datagram.MfgDate << "\","
@@ -335,56 +351,6 @@ std::string Solarmeter::GetPayload(void) const
   return Payload.str();
 }
 
-bool Solarmeter::IsRunning(void) const
-{
-  static bool last_running_state = true;
-  bool running_state = (Datagram.GlobalState.compare("Run") == 0);
-
-  if ((last_running_state != running_state))
-  {
-    if (!running_state)
-    {
-      std::cout << "Inverter standby." << std::endl;
-    }
-    else
-    {
-      std::cout << "Inverter is running." << std::endl;
-    }
-  }
-  last_running_state = running_state;  
-
-  if (!running_state)
-  {
-    return false;
-  } 
-  return true;
-}
-
-bool Solarmeter::IsInput(void) const
-{
-  static bool last_input_state = true;
-  bool input_state = ((Datagram.Channel1State.compare("MPPT") == 0) && (Datagram.Channel2State.compare("MPPT") == 0));
-
-  if ((last_input_state != input_state))
-  {
-    if (!input_state)
-    {
-      std::cout << "Inverter no input, waiting for the sun ..." << std::endl;
-    }
-    else
-    {
-      std::cout << "Inverter sun is shining ..." << std::endl;
-    }
-  }
-  last_input_state = input_state;
-
-  if (!input_state)
-  {
-    return false;
-  }
-  return true;
-}
-
 template <typename T>
 T Solarmeter::StringTo(const std::string &str) const
 {
@@ -396,4 +362,10 @@ T Solarmeter::StringTo(const std::string &str) const
     return T();
   }
   return value;
+}
+
+bool Solarmeter::State::operator==(const Solarmeter::State& lhs, const Solarmeter::State& rhs);
+{
+  return std::tie(lhs.GlobalState, lhs.InverterState, lhs.Channel1State, lhs.Channel2State, lhs.AlarmState) ==
+         std::tie(rhs.GlobalState, rhs.InverterState, rhs.Channel1State, rhs.Channel2State, rhs.AlarmState);
 }
