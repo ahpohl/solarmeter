@@ -95,22 +95,22 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  bool is_running = true;
+  bool is_active = true;
 
   while (shutdown == false)
   {
-    is_running = meter->IsRunning();
-    if (is_running)
+    is_active = (meter->IsRunning() && meter->IsInput());
+    if (is_active)
     {
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     else
     {
-      std::this_thread::sleep_for(std::chrono::minutes(10));
+      std::this_thread::sleep_for(std::chrono::seconds(10));
     }
 	  if (!meter->Receive())
 	  {
-      if (is_running)
+      if (is_active)
       {
 	      std::cout << meter->GetErrorMessage() << std::endl;
       }

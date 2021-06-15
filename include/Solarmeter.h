@@ -29,6 +29,7 @@ public:
   std::string GetErrorMessage(void) const;
   std::string GetPayload(void) const;
   bool IsRunning(void) const;
+  bool IsInput(void) const;
   
   struct Datagram
   {

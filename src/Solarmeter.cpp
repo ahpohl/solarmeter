@@ -256,7 +256,7 @@ bool Solarmeter::Receive(void)
   catch (std::runtime_error& e)
   {
     ErrorMessage = e.what();
-    Datagram.Efficiency = 0;
+    return false;
   }
   return true;
 }
@@ -340,11 +340,11 @@ bool Solarmeter::IsRunning(void) const
   static bool last_running_state = true;
   bool running_state = (Datagram.GlobalState.compare("Run") == 0);
 
-  if ((last_running_state != running_state) && (!running_state))
+  if ((last_running_state != running_state))
   {
     if (!running_state)
     {
-      std::cout << "Inverter is off, waiting for the sun ..." << std::endl;
+      std::cout << "Inverter standby." << std::endl;
     }
     else
     {
@@ -357,6 +357,31 @@ bool Solarmeter::IsRunning(void) const
   {
     return false;
   } 
+  return true;
+}
+
+bool Solarmeter::IsInput(void) const
+{
+  static bool last_input_state = true;
+  bool input_state = ((Datagram.Channel1State.compare("MPPT") == 0) && (Datagram.Channel2State.compare("MPPT") == 0));
+
+  if ((last_input_state != input_state))
+  {
+    if (!input_state)
+    {
+      std::cout << "Inverter no input, waiting for the sun ..." << std::endl;
+    }
+    else
+    {
+      std::cout << "Inverter sun is shining ..." << std::endl;
+    }
+  }
+  last_input_state = input_state;
+
+  if (!input_state)
+  {
+    return false;
+  }
   return true;
 }
 
