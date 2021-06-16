@@ -95,25 +95,12 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int inverter_state = -1;
-
   while (shutdown == false)
   {
-    inverter_state = meter->GetState();
-    if (inverter_state > 0)
-    {
-      std::this_thread::sleep_for(std::chrono::seconds(10));
-    }
-    else
-    {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 	  if (!meter->Receive())
 	  {
-      if (inverter_state < 0)
-      {
-	      std::cout << meter->GetErrorMessage() << std::endl;
-      }
+	    std::cout << meter->GetErrorMessage() << std::endl;
       continue;
  	  }
     if (!meter->Publish())

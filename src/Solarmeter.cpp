@@ -114,60 +114,25 @@ bool Solarmeter::Setup(const std::string &config)
   return true;
 }
 
-int Solarmeter::GetState(void)
-{
-  int inverter_state = -1;
-  static ABBAurora::State previous_state;
-  ABBAurora::State state;
-  if (!Inverter->ReadState(state))
-  {
-    ErrorMessage = Inverter->GetErrorMessage();
-    inverter_state = -1;
-    state.GlobalState.assign("Pause");
-    state.InverterState.assign("Stand By");
-    state.Channel1State.assign("DcDc OFF");
-    state.Channel2State.assign("DcDc OFF");
-    state.AlarmState.assign("No Alarm");
-  }
-  else if (state.GlobalState.compare("Run") == 0)
-  {
-    inverter_state = 0;
-  }
-  else if (!((state.Channel1State.compare("MPPT") == 0) && (state.Channel2State.compare("MPPT") == 0)))
-  {
-    inverter_state = 1;
-  }
-  else
-  {
-    inverter_state = -1;
-  }
-  if (!((previous_state.GlobalState == state.GlobalState) &&
-        (previous_state.InverterState == state.InverterState) &&
-        (previous_state.Channel1State == state.Channel1State) &&
-        (previous_state.Channel2State == state.Channel2State) &&
-        (previous_state.AlarmState == state.AlarmState)))
-  {
-    std::ostringstream oss;
-    oss << "[{"
-      << "\"global_state\":\"" << state.GlobalState << "\"" << ","
-      << "\"inverter_state\":\"" << state.InverterState << "\"" << ","
-      << "\"ch1_state\":\"" << state.Channel1State << "\"" << ","
-      << "\"ch2_state\":\"" << state.Channel2State << "\"" << ","
-      << "\"alarm_state\":\"" << state.AlarmState << "\"" << "}]";
-
-    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
-    {
-      ErrorMessage = Mqtt->GetErrorMessage();
-      return -1;
-    }
-  }
-  previous_state = state;
-
-  return inverter_state;
-}
-
 bool Solarmeter::Receive(void)
 {
+  if (!Inverter->ReadState(State))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  /*
+  if (!((state.Channel1State.compare("MPPT") == 0) && (state.Channel2State.compare("MPPT") == 0)))
+  {
+    ErrorMessage = std::string("Inverter state: channel 1 \"") + state.Channel1State + "\", channel 2 \"" + state.Channel2State + "\"";
+    return false;
+  }
+  if (!((state.GlobalState.compare("Run") == 0)))
+  {
+    ErrorMessage = std::string("Global state \"") + state.GlobalState + "\"";
+    return false;
+  }
+  */
   if (!Inverter->ReadPartNumber(Datagram.PartNum))
   {
     ErrorMessage = Inverter->GetErrorMessage();
@@ -293,6 +258,29 @@ bool Solarmeter::Receive(void)
 
 bool Solarmeter::Publish(void)
 {
+  static ABBAurora::State previous_state;
+  if (!((previous_state.GlobalState == State.GlobalState) &&
+        (previous_state.InverterState == State.InverterState) &&
+        (previous_state.Channel1State == State.Channel1State) &&
+        (previous_state.Channel2State == State.Channel2State) &&
+        (previous_state.AlarmState == State.AlarmState)))
+  {
+    std::ostringstream oss;
+    oss << "[{"
+      << "\"global_state\":\"" << State.GlobalState << "\"" << ","
+      << "\"inverter_state\":\"" << State.InverterState << "\"" << ","
+      << "\"ch1_state\":\"" << State.Channel1State << "\"" << ","
+      << "\"ch2_state\":\"" << State.Channel2State << "\"" << ","
+      << "\"alarm_state\":\"" << State.AlarmState << "\"" << "}]";
+
+    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+  }
+  previous_state = State;
+
   unsigned long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   
   std::ios::fmtflags old_settings = Payload.flags();

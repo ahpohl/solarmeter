@@ -12,6 +12,7 @@ private:
   ABBAurora *Inverter;
   SolarmeterMqtt *Mqtt;
   SolarmeterConfig *Cfg;
+  ABBAurora::State State;
   std::stringstream Payload;
   std::string Config;
   std::string ErrorMessage;
@@ -28,7 +29,6 @@ public:
   bool Publish(void);
   std::string GetErrorMessage(void) const;
   std::string GetPayload(void) const;
-  int GetState(void);
   
   struct Datagram
   {
@@ -55,15 +55,6 @@ public:
     float TotalEnergy;        // Lifetime total energy [kWh]
     float PaymentKwh;         // Payment per kWh
   } Datagram;
-
-  struct State
-  {
-    std::string GlobalState;  // Global state
-    std::string InverterState;// Inverter state
-    std::string Channel1State;// Channel 1 state
-    std::string Channel2State;// Channel 2 state
-    std::string AlarmState;   // Alarm state
-  };
 };
 
 #endif
