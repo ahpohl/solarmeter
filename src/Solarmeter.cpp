@@ -141,8 +141,12 @@ int Solarmeter::GetState(void)
   {
     inverter_state = -1;
   }
-  //if (!(previous_state == state))
-  //{
+  if (!((previous_state.GlobalState == state.GlobalState) &&
+        (previous_state.InverterState == state.InverterState) &&
+        (previous_state.Channel1State == state.Channel1State) &&
+        (previous_state.Channel2State == state.Channel2State) &&
+        (previous_state.AlarmState == state.AlarmState)))
+  {
     std::ostringstream oss;
     oss << "[{"
       << "\"global_state\":\"" << state.GlobalState << "\"" << ","
@@ -156,7 +160,7 @@ int Solarmeter::GetState(void)
       ErrorMessage = Mqtt->GetErrorMessage();
       return -1;
     }
-  //}
+  }
   previous_state = state;
 
   return inverter_state;
