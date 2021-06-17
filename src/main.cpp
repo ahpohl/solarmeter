@@ -95,14 +95,24 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  static int timeout = 0;
+
   while (shutdown == false)
   {
     std::this_thread::sleep_for(std::chrono::seconds(1));
 	  if (!meter->Receive())
 	  {
-	    std::cout << meter->GetErrorMessage() << std::endl;
+      if (timeout < 5)
+      {
+	      std::cout << meter->GetErrorMessage() << std::endl;
+        ++timeout;
+      }
       continue;
  	  }
+    else
+    {
+      timeout = 0;
+    }
     if (!meter->Publish())
     {
       std::cout << meter->GetErrorMessage() << std::endl;

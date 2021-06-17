@@ -116,33 +116,11 @@ bool Solarmeter::Setup(const std::string &config)
 
 bool Solarmeter::Receive(void)
 {
-  static int timeout = 0;
   if (!Inverter->ReadState(State))
   {
-    if (timeout < 5)
-    {
-      ErrorMessage = Inverter->GetErrorMessage();
-      //std::cout << "yes I am here" << std::endl;
-      ++timeout;
-    }
+    ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  if (State.GlobalState.compare("Run") == 0)
-  {
-    timeout = 0;
-  }
-  /*
-  if (!((state.Channel1State.compare("MPPT") == 0) && (state.Channel2State.compare("MPPT") == 0)))
-  {
-    ErrorMessage = std::string("Inverter state: channel 1 \"") + state.Channel1State + "\", channel 2 \"" + state.Channel2State + "\"";
-    return false;
-  }
-  if (!((state.GlobalState.compare("Run") == 0)))
-  {
-    ErrorMessage = std::string("Global state \"") + state.GlobalState + "\"";
-    return false;
-  }
-  */
   if (!Inverter->ReadPartNumber(Datagram.PartNum))
   {
     ErrorMessage = Inverter->GetErrorMessage();
@@ -153,7 +131,6 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  
   ABBAurora::FirmwareRelease firmware;
   if (!Inverter->ReadFirmwareRelease(firmware))
   {
@@ -249,15 +226,6 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  if (((Datagram.PowerP1 + Datagram.PowerP2) > 0) && (Datagram.GridPower > 0))
-  {
-    Datagram.Efficiency = Datagram.GridPower / (Datagram.PowerP1 + Datagram.PowerP2) * 100.0f;
-  }
-  else
-  {
-    Datagram.Efficiency = 0;
-  }
-  /*
   try
   {
     float denominator = Datagram.PowerP1 + Datagram.PowerP2;
@@ -272,7 +240,6 @@ bool Solarmeter::Receive(void)
     ErrorMessage = e.what();
     return false;
   }
-  */
   return true;
 }
 
@@ -293,7 +260,7 @@ bool Solarmeter::Publish(void)
       << "\"ch2_state\":\"" << State.Channel2State << "\"" << ","
       << "\"alarm_state\":\"" << State.AlarmState << "\"" << "}]";
 
-    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
+    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 1, true)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
