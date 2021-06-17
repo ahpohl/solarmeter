@@ -116,10 +116,20 @@ bool Solarmeter::Setup(const std::string &config)
 
 bool Solarmeter::Receive(void)
 {
+  static int timeout = 0;
   if (!Inverter->ReadState(State))
   {
-    ErrorMessage = Inverter->GetErrorMessage();
+    if (timeout < 5)
+    {
+      ErrorMessage = Inverter->GetErrorMessage();
+      //std::cout << "yes I am here" << std::endl;
+      ++timeout;
+    }
     return false;
+  }
+  if (State.GlobalState.compare("Run") == 0)
+  {
+    timeout = 0;
   }
   /*
   if (!((state.Channel1State.compare("MPPT") == 0) && (state.Channel2State.compare("MPPT") == 0)))
@@ -239,6 +249,15 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
+  if (((Datagram.PowerP1 + Datagram.PowerP2) > 0) && (Datagram.GridPower > 0))
+  {
+    Datagram.Efficiency = Datagram.GridPower / (Datagram.PowerP1 + Datagram.PowerP2) * 100.0f;
+  }
+  else
+  {
+    Datagram.Efficiency = 0;
+  }
+  /*
   try
   {
     float denominator = Datagram.PowerP1 + Datagram.PowerP2;
@@ -253,6 +272,7 @@ bool Solarmeter::Receive(void)
     ErrorMessage = e.what();
     return false;
   }
+  */
   return true;
 }
 
