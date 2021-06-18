@@ -97,7 +97,7 @@ CREATE MATERIALIZED VIEW monthly_view
 AS
 SELECT
   _time_bucket('1 month', time) AS time,
-  sum(total) AS energy,
+  sum(energy) AS energy,
   sum(credit) AS credit,
   first(total, time) AS total
 FROM daily_view
