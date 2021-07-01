@@ -12,6 +12,7 @@ private:
   ABBAurora *Inverter;
   SolarmeterMqtt *Mqtt;
   SolarmeterConfig *Cfg;
+  ABBAurora::State State;
   std::stringstream Payload;
   std::string Config;
   std::string ErrorMessage;
@@ -31,11 +32,6 @@ public:
   
   struct Datagram
   {
-    std::string GlobalState;  // Global state
-    std::string InverterState;// Inverter state
-    std::string Channel1State;// Channel 1 state
-    std::string Channel2State;// Channel 2 state
-    std::string AlarmState;   // Alarm state
     std::string SerialNum;    // Serial number
     std::string PartNum;      // Part number
     std::string MfgDate;      // Manufacturing date

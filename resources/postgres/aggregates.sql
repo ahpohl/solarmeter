@@ -12,8 +12,8 @@ SELECT
   time_bucket('1 day', time) AS bucket_1d,
   sensor_id,
   plan_id,
-  last(energy, time) - first(energy, time) AS energy_1d,
-  first(energy, time) AS total
+  last(total_energy, time) - first(total_energy, time) AS energy_1d,
+  first(total_energy, time) AS total
 FROM live
 GROUP BY bucket_1d, plan_id, sensor_id
 WITH NO DATA;
@@ -34,10 +34,9 @@ WITH (timescaledb.continuous, timescaledb.materialized_only=true)
 AS
 SELECT
   time_bucket('5 minutes', time) as bucket_5m,
-  avg(power) as power_5m,
-  avg(power_l1) as power_l1_5m,
-  avg(power_l2) as power_l2_5m,
-  avg(power_l3) as power_l3_5m
+  avg(grid_power) as power_5m,
+  avg(power_p1) as power_p1,
+  avg(power_p2) as power_p2
 FROM live
 GROUP BY bucket_5m           
 WITH NO DATA;

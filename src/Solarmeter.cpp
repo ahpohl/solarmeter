@@ -116,28 +116,11 @@ bool Solarmeter::Setup(const std::string &config)
 
 bool Solarmeter::Receive(void)
 {
-  static std::string previous_state = "Unknown";
-  ABBAurora::State state;
-  if (!Inverter->ReadState(state))
+  if (!Inverter->ReadState(State))
   {
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  Datagram.GlobalState = state.GlobalState;
-  Datagram.InverterState = state.InverterState;
-  Datagram.Channel1State = state.Channel1State;
-  Datagram.Channel2State = state.Channel2State;
-  Datagram.AlarmState = state.AlarmState;
-  if (previous_state.compare(state.GlobalState))
-  {
-    if (!(Mqtt->PublishMessage(state.GlobalState, Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
-    {
-      ErrorMessage = Mqtt->GetErrorMessage();
-      return false;
-    }
-  }
-  previous_state = state.GlobalState;
-
   if (!Inverter->ReadPartNumber(Datagram.PartNum))
   {
     ErrorMessage = Inverter->GetErrorMessage();
@@ -148,7 +131,6 @@ bool Solarmeter::Receive(void)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
-  
   ABBAurora::FirmwareRelease firmware;
   if (!Inverter->ReadFirmwareRelease(firmware))
   {
@@ -263,6 +245,29 @@ bool Solarmeter::Receive(void)
 
 bool Solarmeter::Publish(void)
 {
+  static ABBAurora::State previous_state;
+  if (!((previous_state.GlobalState == State.GlobalState) &&
+        (previous_state.InverterState == State.InverterState) &&
+        (previous_state.Channel1State == State.Channel1State) &&
+        (previous_state.Channel2State == State.Channel2State) &&
+        (previous_state.AlarmState == State.AlarmState)))
+  {
+    std::ostringstream oss;
+    oss << "[{"
+      << "\"global_state\":\"" << State.GlobalState << "\"" << ","
+      << "\"inverter_state\":\"" << State.InverterState << "\"" << ","
+      << "\"ch1_state\":\"" << State.Channel1State << "\"" << ","
+      << "\"ch2_state\":\"" << State.Channel2State << "\"" << ","
+      << "\"alarm_state\":\"" << State.AlarmState << "\"" << "}]";
+
+    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 1, true)))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+  }
+  previous_state = State;
+
   unsigned long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   
   std::ios::fmtflags old_settings = Payload.flags();
@@ -288,11 +293,6 @@ bool Solarmeter::Publish(void)
     << "\"r_iso\":" << std::setprecision(3) << Datagram.RIso << ","
     << "\"payment\":" << Cfg->GetValue("payment_kwh")
     << "},{"
-    << "\"global_state\":\"" << Datagram.GlobalState << "\"" << ","
-    << "\"inverter_state\":\"" << Datagram.InverterState << "\"" << ","
-    << "\"ch1_state\":\"" << Datagram.Channel1State << "\"" << ","
-    << "\"ch2_state\":\"" << Datagram.Channel2State << "\"" << ","
-    << "\"alarm_state\":\"" << Datagram.AlarmState << "\"" << ","
     << "\"serial_num\":\"" << Datagram.SerialNum << "\","
     << "\"part_num\":\"" << Datagram.PartNum << "\","
     << "\"mfg_date\":\"" << Datagram.MfgDate << "\","

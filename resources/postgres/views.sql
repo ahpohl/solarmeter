@@ -8,22 +8,20 @@ AS
 SELECT
   bucket_1d AS time,
   energy_1d AS energy,
-  energy_1d * price + rate * 12.0 / 365.0 AS bill,
+  energy_1d * payment AS credit,
   total,
-  price,
-  rate
+  payment
 FROM archive JOIN plan ON archive.plan_id = plan.id
-GROUP BY bucket_1d, energy_1d, total, price, rate
+GROUP BY bucket_1d, energy_1d, total, payment
 UNION
 SELECT
   bucket_1d AS time,
   energy_1d AS energy,
-  energy_1d * price + rate * 12.0 / 365.0 AS bill,
+  energy_1d * payment AS credit,
   total,
-  price,
-  rate
+  payment
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
-GROUP BY bucket_1d, energy_1d, total, price, rate
+GROUP BY bucket_1d, energy_1d, total, payment
 ORDER BY time;
 
 -- index
@@ -100,7 +98,7 @@ AS
 SELECT
   _time_bucket('1 month', time) AS time,
   sum(energy) AS energy,
-  sum(bill) AS bill,
+  sum(credit) AS credit,
   first(total, time) AS total
 FROM daily_view
 GROUP BY _time_bucket('1 month', time)

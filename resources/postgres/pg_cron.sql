@@ -8,11 +8,11 @@ SELECT cron.schedule('purge_log', '13 0 * * *', $$DELETE
     WHERE end_time < now() - INTERVAL '3 days'$$);
 
 -- schedule updates
-SELECT cron.schedule('daily_view', '0,15,30,45 * * * *', $$REFRESH
+SELECT cron.schedule('solarmeter_daily', '2,17,32,47 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY daily_view$$);
 
-SELECT cron.schedule('monthly_view', '1,16,31,46 * * * *', $$REFRESH
+SELECT cron.schedule('solarmeter_monthly', '3,18,33,48 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY monthly_view$$);
 
 UPDATE cron.job SET database = 'solarmeter' WHERE 
-  jobname = 'daily_view' OR jobname = 'monthly_view';
+  jobname = 'solarmeter_daily' OR jobname = 'solarmeter_monthly';
