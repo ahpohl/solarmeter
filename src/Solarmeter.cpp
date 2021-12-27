@@ -304,7 +304,7 @@ bool Solarmeter::Publish(void)
   static bool last_connect_status = true;
   if (Mqtt->GetConnectStatus())
   {
-    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
+    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, true)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
