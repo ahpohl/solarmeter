@@ -9,6 +9,14 @@ The Solarmeter daemon is built upon the [libabbaurora](https://ahpohl.github.io/
 
 The software stack is light weight in terms of necessary resources and runs on any SBC such as an Odroid C2/C4 or Raspberry Pi 3/4.
 
+## Run in docker
+
+You can build and run the binary from docker. This is an easy solution if you want to run on a less setup (like synology)
+
+```
+docker -v $(pwd)/config.conf:/app/config.conf --device /dev/ttyUSB0 run jekkos/solarmeter:latest -c /app/config.conf
+```
+
 ## Changelog
 
 All notable changes and releases are documented in the [CHANGELOG](CHANGELOG.md).
