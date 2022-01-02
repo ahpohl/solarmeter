@@ -1,8 +1,8 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <ABBAuroraEnums.h>
 #include "SolarmeterMqtt.h"
-#include "SolarmeterEnums.h"
 
 SolarmeterMqtt::SolarmeterMqtt(void): Log(0) 
 {
