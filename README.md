@@ -7,7 +7,7 @@ The Solarmeter daemon is built upon the [libabbaurora](https://ahpohl.github.io/
 - PostgreSQL with TimescaleDB and pg_cron extensions
 - Grafana for visualization
 
-The software stack is light weight in terms of necessary resources and runs on any SBC such as an Odroid C2/C4 or Raspberry Pi 3/4.
+The software stack is light weight in terms of necessary resources and runs on any SBC such as an Odroid C2/C4 or Raspberry Pi 3/4. Step-by-step [instructions](https://github.com/ahpohl/smartmeter/wiki) can be found at the [Smartmeter](https://github.com/ahpohl/smartmeter) sister project wiki pages. The Aurora converter needs to be connected to the host USB with a [RS485-to-USB adapter](https://www.waveshare.com/usb-to-rs232-485-ttl.htm) like the one from Waveshare. 
 
 ## Run in docker
 
