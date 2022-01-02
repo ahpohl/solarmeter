@@ -16,19 +16,20 @@ private:
   std::stringstream Payload;
   std::string Config;
   std::string ErrorMessage;
-  bool Log;
+  unsigned char Log;
 
   template <typename T>
   T StringTo(const std::string &str) const;
+  void SetLogLevel(void);
  
 public:
-  Solarmeter(const bool &log);
+  Solarmeter(void);
   ~Solarmeter(void);
   bool Setup(const std::string &config);
   bool Receive(void);
   bool Publish(void);
   std::string GetErrorMessage(void) const;
-  std::string GetPayload(void) const;
+  unsigned char GetLogLevel(void) const;
   
   struct Datagram
   {

@@ -5,14 +5,15 @@
 #include <chrono>
 #include <thread>
 #include <stdexcept>
+#include <vector>
 #include "Solarmeter.h"
 
-const std::set<std::string> Solarmeter::ValidKeys {"mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "payment_kwh", "serial_device"};
+const std::set<std::string> Solarmeter::ValidKeys {"log_level", "mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "payment_kwh", "serial_device"};
 
-Solarmeter::Solarmeter(const bool &log): Log(log)
+Solarmeter::Solarmeter(void)
 {
   Inverter = new ABBAurora();;
-  Mqtt = new SolarmeterMqtt(Log);
+  Mqtt = new SolarmeterMqtt();
   Cfg = new SolarmeterConfig();
 }
 
@@ -35,14 +36,17 @@ bool Solarmeter::Setup(const std::string &config)
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (Log)
-  {
-    Cfg->ShowConfig();
-  }
   if (!Cfg->ValidateKeys(Solarmeter::ValidKeys))
   {
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
+  }
+  this->SetLogLevel();
+  Inverter->SetLogLevel(Log);
+  Mqtt->SetLogLevel(Log);
+  if (Log & static_cast<unsigned char>(LogLevelEnum::CONFIG))
+  {
+    Cfg->ShowConfig();
   }
   if (!(Cfg->KeyExists("payment_kwh")))
   {
@@ -301,6 +305,11 @@ bool Solarmeter::Publish(void)
     << "\"grid_standard\":\"" << Datagram.GridStandard << "\""
     << "}]";
 
+  if (Log & static_cast<unsigned char>(LogLevelEnum::JSON))
+  {
+    std::cout << Payload.str() << std::endl;
+  }
+
   static bool last_connect_status = true;
   if (Mqtt->GetConnectStatus())
   {
@@ -330,9 +339,49 @@ std::string Solarmeter::GetErrorMessage(void) const
   return ErrorMessage;
 }
 
-std::string Solarmeter::GetPayload(void) const
+void Solarmeter::SetLogLevel(void)
 {
-  return Payload.str();
+  if (Cfg->KeyExists("log_level"))
+  {
+    std::string line = Cfg->GetValue("log_level");
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> log_level;
+
+    while(std::getline(iss, token, ','))
+    {
+      log_level.push_back(token);
+    }
+    for (auto it = log_level.cbegin(); it != log_level.cend(); ++it)
+    {
+      if (!(*it).compare("config"))
+      {
+        Log |= static_cast<unsigned char>(LogLevelEnum::CONFIG);
+      }
+      else if (!(*it).compare("json"))
+      {
+        Log |= static_cast<unsigned char>(LogLevelEnum::JSON);
+      }
+      else if (!(*it).compare("mosquitto"))
+      {
+        Log |= static_cast<unsigned char>(LogLevelEnum::MQTT);
+      }
+      else if (!(*it).compare("serial"))
+      {
+        Log |= static_cast<unsigned char>(LogLevelEnum::SERIAL);
+      }
+    }
+  }
+  else
+  {
+    Log = 0;
+  }
+  //std::cout << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << ((int)Log & 0xFF) << std::endl;  
+}
+
+unsigned char Solarmeter::GetLogLevel(void) const
+{
+  return Log;
 }
 
 template <typename T>

@@ -2,8 +2,9 @@
 #include <thread>
 #include <chrono>
 #include "SolarmeterMqtt.h"
+#include "SolarmeterEnums.h"
 
-SolarmeterMqtt::SolarmeterMqtt(const bool &log): Log(log) 
+SolarmeterMqtt::SolarmeterMqtt(void): Log(0) 
 {
   IsConnected = false;
 }
@@ -17,6 +18,11 @@ SolarmeterMqtt::~SolarmeterMqtt(void)
   mosquitto_loop_stop(Mosq, false);
   mosquitto_destroy(Mosq);
   mosquitto_lib_cleanup();
+}
+
+void SolarmeterMqtt::SetLogLevel(const unsigned char &log_level)
+{
+  Log = log_level;
 }
 
 bool SolarmeterMqtt::Begin(void)
@@ -185,7 +191,7 @@ void SolarmeterMqtt::OnConnectCallbackWrapper(struct mosquitto *mosq, void *obj,
 
 void SolarmeterMqtt::LogCallback(struct mosquitto *mosq, void *obj, int level, const char *str)
 {
-  if (Log)
+  if (Log & static_cast<unsigned char>(LogLevelEnum::MQTT))
   {
     std::cout << str << std::endl;
   }

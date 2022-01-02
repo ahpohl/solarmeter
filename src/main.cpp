@@ -23,7 +23,6 @@ int main(int argc, char* argv[])
   sigaction(SIGINT, &action, NULL);
   sigaction(SIGTERM, &action, NULL);
   
-  int verbose_level = 0;
   bool version = false;
   bool help = false;
   std::string config;
@@ -31,7 +30,6 @@ int main(int argc, char* argv[])
   const struct option longOpts[] = {
     { "help", no_argument, nullptr, 'h' },
     { "version", no_argument, nullptr, 'V' },
-    { "verbose", no_argument, nullptr, 'v' },
     { "config", required_argument, nullptr, 'c' },
     { nullptr, 0, nullptr, 0 }
   };
@@ -49,9 +47,6 @@ int main(int argc, char* argv[])
     case 'V':
       version = true;
       break;
-    case 'v':
-      ++verbose_level;
-      break;
     case 'c':
       config = optarg;
       break;
@@ -68,7 +63,6 @@ int main(int argc, char* argv[])
     std::cout << "\n\
   -h --help         Show help message\n\
   -V --version      Show build info\n\
-  -v --verbose      Set verbose output level\n\
   -c --config       Set config file"
     << std::endl << std::endl;
     return EXIT_SUCCESS;
@@ -86,8 +80,7 @@ int main(int argc, char* argv[])
   std::cout << "Solarmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  bool log = (verbose_level == 2) ? true : false;
-  std::unique_ptr<Solarmeter> meter(new Solarmeter(log));
+  std::unique_ptr<Solarmeter> meter(new Solarmeter());
   
   if (!meter->Setup(config))
   {
@@ -116,10 +109,6 @@ int main(int argc, char* argv[])
     if (!meter->Publish())
     {
       std::cout << meter->GetErrorMessage() << std::endl;
-    }
-    if (verbose_level == 1)
-    {
-      std::cout << meter->GetPayload() << std::endl;
     }
   }
 
