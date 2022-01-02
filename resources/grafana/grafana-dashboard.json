@@ -8,30 +8,30 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
-      },
-      {
-        "datasource": "Sun and Moon",
-        "enable": true,
-        "hide": true,
-        "iconColor": "#FF9830",
-        "name": "Sunrise / Sunset",
-        "query": "sunrise,sunset",
-        "rawQuery": "SELECT\n  extract(epoch from time_column) AS time,\n  text_column as text,\n  tags_column as tags\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
-        "showIn": 0
       }
     ]
   },
   "description": "Show data from a smart energy meter",
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "gnetId": 12519,
   "graphTooltip": 0,
   "id": 16,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "cacheTimeout": null,
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -39,11 +39,13 @@
           },
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -67,9 +69,7 @@
       },
       "hideTimeOverride": true,
       "id": 15,
-      "interval": null,
       "links": [],
-      "maxDataPoints": null,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -85,7 +85,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.7",
+      "pluginVersion": "8.3.1",
       "targets": [
         {
           "format": "time_series",
@@ -117,14 +117,15 @@
         }
       ],
       "timeFrom": "5s",
-      "timeShift": null,
       "title": "Total Energy",
       "transparent": true,
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -134,11 +135,13 @@
           "decimals": 1,
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -162,9 +165,7 @@
       },
       "hideTimeOverride": true,
       "id": 24,
-      "interval": null,
       "links": [],
-      "maxDataPoints": null,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -180,7 +181,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.7",
+      "pluginVersion": "8.3.1",
       "targets": [
         {
           "format": "time_series",
@@ -212,14 +213,15 @@
         }
       ],
       "timeFrom": "24h",
-      "timeShift": null,
       "title": "Energy Today",
       "transparent": true,
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -227,11 +229,13 @@
           },
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "max": 4500,
@@ -265,7 +269,6 @@
       },
       "hideTimeOverride": true,
       "id": 22,
-      "interval": null,
       "links": [],
       "options": {
         "orientation": "horizontal",
@@ -280,7 +283,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.5.7",
+      "pluginVersion": "8.3.1",
       "targets": [
         {
           "format": "time_series",
@@ -312,13 +315,15 @@
         }
       ],
       "timeFrom": "5s",
-      "timeShift": null,
       "title": "Grid Power",
       "transparent": true,
       "type": "gauge"
     },
     {
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -335,7 +340,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "linear",
             "lineWidth": 2,
@@ -344,7 +350,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "min": 0,
@@ -425,8 +438,6 @@
       },
       "hideTimeOverride": false,
       "id": 23,
-      "interval": null,
-      "maxDataPoints": null,
       "options": {
         "graph": {},
         "legend": {
@@ -438,7 +449,7 @@
           "displayMode": "table",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "multi"
         }
       },
@@ -503,14 +514,15 @@
         }
       ],
       "timeFrom": "12d",
-      "timeShift": null,
       "title": "Daily Energy",
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -557,7 +569,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.7",
+      "pluginVersion": "8.3.1",
       "targets": [
         {
           "format": "time_series",
@@ -589,14 +601,15 @@
         }
       ],
       "timeFrom": "370d",
-      "timeShift": null,
       "title": "Average Credit",
       "transparent": true,
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -605,11 +618,13 @@
           "decimals": 2,
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -651,7 +666,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.7",
+      "pluginVersion": "8.3.1",
       "targets": [
         {
           "format": "time_series",
@@ -683,13 +698,15 @@
         }
       ],
       "timeFrom": "32d",
-      "timeShift": null,
       "title": "Current Credit",
       "transparent": true,
       "type": "stat"
     },
     {
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -705,7 +722,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "linear",
             "lineStyle": {
@@ -717,7 +735,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -748,7 +773,7 @@
           "displayMode": "list",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "multi"
         }
       },
@@ -783,14 +808,16 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
+      "timeFrom": "15m",
       "title": "Power",
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "datasource": "Solarmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "Qc9bUpgnz"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -807,7 +834,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "linear",
             "lineWidth": 2,
@@ -816,7 +844,14 @@
               "type": "linear"
             },
             "showPoints": "always",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "min": 0,
@@ -897,8 +932,6 @@
       },
       "hideTimeOverride": false,
       "id": 27,
-      "interval": null,
-      "maxDataPoints": null,
       "options": {
         "graph": {},
         "legend": {
@@ -910,7 +943,7 @@
           "displayMode": "table",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "multi"
         }
       },
@@ -947,7 +980,7 @@
         {
           "format": "time_series",
           "group": [],
-          "hide": true,
+          "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
           "rawSql": "SELECT\n  time,\n  credit\nFROM monthly_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
@@ -975,13 +1008,15 @@
         }
       ],
       "timeFrom": "366d",
-      "timeShift": null,
       "title": "Monthly Energy",
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -997,7 +1032,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -1009,7 +1045,14 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1071,8 +1114,6 @@
       },
       "hideTimeOverride": false,
       "id": 2,
-      "interval": null,
-      "maxDataPoints": null,
       "options": {
         "graph": {},
         "legend": {
@@ -1080,14 +1121,17 @@
           "displayMode": "hidden",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "single"
         }
       },
       "pluginVersion": "7.4.5",
       "targets": [
         {
-          "datasource": "Solarmeter",
+          "datasource": {
+            "type": "postgres",
+            "uid": "Qc9bUpgnz"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -1116,28 +1160,29 @@
           ]
         },
         {
-          "datasource": "Sun and Moon",
+          "datasource": {
+            "type": "fetzerch-sunandmoon-datasource",
+            "uid": "CtNZ6oR7z"
+          },
           "hide": true,
           "refId": "B",
           "target": "sun_altitude"
         }
       ],
-      "timeFrom": "18h",
-      "timeShift": null,
       "title": "Average Power",
       "transparent": true,
       "type": "timeseries"
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 27,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {
@@ -1157,5 +1202,6 @@
   "timezone": "",
   "title": "Solarmeter",
   "uid": "Zy76S8QGk",
-  "version": 27
+  "version": 32,
+  "weekStart": ""
 }
