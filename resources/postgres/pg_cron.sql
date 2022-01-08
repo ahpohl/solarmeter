@@ -11,8 +11,13 @@ SELECT cron.schedule('purge_log', '13 0 * * *', $$DELETE
 SELECT cron.schedule('solarmeter_daily', '2,17,32,47 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY daily_view$$);
 
-SELECT cron.schedule('solarmeter_monthly', '3,18,33,48 * * * *', $$REFRESH
+SELECT cron.schedule('solarmeter_monthly', '2,17,32,47 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY monthly_view$$);
 
+SELECT cron.schedule('solarmeter_yearly', '2,17,32,47 * * * *', $$REFRESH
+  MATERIALIZED VIEW CONCURRENTLY yearly_view$$);
+
 UPDATE cron.job SET database = 'solarmeter' WHERE 
-  jobname = 'solarmeter_daily' OR jobname = 'solarmeter_monthly';
+  jobname = 'solarmeter_daily' OR 
+  jobname = 'solarmeter_monthly' OR
+  jobname = 'solarmeter_yearly';
