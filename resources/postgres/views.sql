@@ -21,12 +21,9 @@ SELECT
   total,
   payment
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
---WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2021-10-07 01:00:00+01'
+WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-02-01 01:00:00+01'
 GROUP BY bucket_1d, energy_1d, total, payment
 ORDER BY time;
-
--- index
-CREATE UNIQUE INDEX daily_idx ON daily_view (time);
 
 -- grant
 GRANT SELECT ON TABLE daily_view TO grafana;
@@ -45,9 +42,6 @@ FROM daily_view
 GROUP BY timescaledb_experimental.time_bucket_ng('1 month', time)
 ORDER BY time;
 
--- index
-CREATE UNIQUE INDEX monthly_idx ON monthly_view (time);
-
 -- grant
 GRANT SELECT ON TABLE monthly_view TO grafana;
 
@@ -64,9 +58,6 @@ SELECT
 FROM daily_view
 GROUP BY timescaledb_experimental.time_bucket_ng('1 year', time)
 ORDER BY time;
-
--- index
-CREATE UNIQUE INDEX yearly_idx ON yearly_view (time);
 
 -- grant
 GRANT SELECT ON TABLE yearly_view TO grafana;
