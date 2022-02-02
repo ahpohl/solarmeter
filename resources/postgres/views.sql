@@ -21,6 +21,7 @@ SELECT
   total,
   payment
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
+-- insert end time of archive
 WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-02-01 01:00:00+01'
 GROUP BY bucket_1d, energy_1d, total, payment
 ORDER BY time;
