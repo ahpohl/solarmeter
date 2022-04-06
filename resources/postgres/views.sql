@@ -41,7 +41,10 @@ SELECT
   timescaledb_experimental.time_bucket_ng('1 month', time) AS time,
   sum(energy) AS energy,
   sum(credit) AS credit,
-  first(total, time) AS total
+  first(total, time) AS total,
+  avg(energy) AS avg,
+  min(energy) AS min,
+  max(energy) AS max
 FROM daily_view
 GROUP BY timescaledb_experimental.time_bucket_ng('1 month', time)
 ORDER BY time;
