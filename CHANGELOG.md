@@ -1,6 +1,6 @@
 # Solarmeter changelog
 
-## v0.1.3 - 2022-01-xx
+## v0.1.3 - 2022-10-30
 * TimescaleDB: replaced \_time\_bucket() with timescaledb\_experimental.time\_bucket\_ng()
 * created yearly\_view
 

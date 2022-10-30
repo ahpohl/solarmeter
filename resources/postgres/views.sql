@@ -22,7 +22,7 @@ SELECT
   payment
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
 -- insert end time of archive
-WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-02-02 01:00:00+01'
+WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-08-30 02:00:00+02'
 GROUP BY bucket_1d, energy_1d, total, payment
 ORDER BY time;
 
@@ -62,6 +62,7 @@ CREATE MATERIALIZED VIEW yearly_view
 AS
 SELECT
   timescaledb_experimental.time_bucket_ng('1 year', time) AS time,
+  count(*) as days,
   sum(energy) AS energy,
   sum(credit) AS credit,
   first(total, time) AS total
