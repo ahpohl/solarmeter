@@ -296,36 +296,32 @@ bool Solarmeter::Publish(void)
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
-    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
-    {
-      ErrorMessage = Mqtt->GetErrorMessage();
-      return false;
-    }
-    Mqtt->SetNotifyOnlineFlag(false);
   }
 
   static ABBAurora::State previous_state;
-  if (Mqtt->GetConnectStatus())
+  if ( Mqtt->GetNotifyOnlineFlag() || 
+       (!((previous_state.GlobalState == State.GlobalState) &&
+       (previous_state.InverterState == State.InverterState) &&
+       (previous_state.Channel1State == State.Channel1State) &&
+       (previous_state.Channel2State == State.Channel2State) &&
+       (previous_state.AlarmState == State.AlarmState))) )
   {
-    if ( !((previous_state.GlobalState == State.GlobalState) &&
-         (previous_state.InverterState == State.InverterState) &&
-         (previous_state.Channel1State == State.Channel1State) &&
-         (previous_state.Channel2State == State.Channel2State) &&
-         (previous_state.AlarmState == State.AlarmState)) )
-    {
-      if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
-      {
-        ErrorMessage = Mqtt->GetErrorMessage();
-        return false;
-      }
-    }
-    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
+    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
     previous_state = State;
   }
+  if (Mqtt->GetConnectStatus())
+  {
+    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+  }
+  Mqtt->SetNotifyOnlineFlag(false);
 
   if (Log & static_cast<unsigned char>(LogLevelEnum::JSON))
   {
