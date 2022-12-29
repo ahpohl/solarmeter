@@ -1,12 +1,13 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include <ABBAuroraEnums.h>
 #include "SolarmeterMqtt.h"
+#include "ABBAuroraEnums.h"
 
 SolarmeterMqtt::SolarmeterMqtt(void): Log(0) 
 {
   IsConnected = false;
+  NotifyOnlineFlag = false;
 }
 
 SolarmeterMqtt::~SolarmeterMqtt(void)
@@ -122,11 +123,22 @@ bool SolarmeterMqtt::GetConnectStatus(void) const
   return IsConnected;
 }
 
+bool SolarmeterMqtt::GetNotifyOnlineFlag(void) const
+{
+  return NotifyOnlineFlag;
+}
+
+void SolarmeterMqtt::SetNotifyOnlineFlag(const bool &flag)
+{
+  NotifyOnlineFlag = flag;
+}
+
 void SolarmeterMqtt::OnConnectCallback(struct mosquitto *mosq, void *obj, int connack_code)
 {
   if (!connack_code)
   {
     IsConnected = true;
+    NotifyOnlineFlag = true;
   }
   else
   {

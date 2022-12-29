@@ -63,6 +63,13 @@ bool Solarmeter::Setup(const std::string &config)
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
   }
+  if (!Inverter->ReadCumulatedEnergy(Datagram.TotalEnergy, CumulatedEnergyEnum::LIFETIME_TOTAL))
+  {
+    ErrorMessage = Inverter->GetErrorMessage();
+    return false;
+  }
+  std::cout << "Current meter reading: " << Datagram.TotalEnergy << " kWh" << std::endl;
+  
   if (!Mqtt->Begin())
   {
     ErrorMessage = Mqtt->GetErrorMessage();
@@ -281,8 +288,7 @@ bool Solarmeter::Publish(void)
     << "\"ch2_state\":\"" << State.Channel2State << "\"" << ","
     << "\"alarm_state\":\"" << State.AlarmState << "\"" << "}]";
 
-  static bool last_connect_status = false;
-  if ( (!last_connect_status) && (Mqtt->GetConnectStatus()) )
+  if (Mqtt->GetNotifyOnlineFlag())
   {
     std::cout << "Solarmeter is online." << std::endl;
     if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
@@ -290,17 +296,22 @@ bool Solarmeter::Publish(void)
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
+    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+    Mqtt->SetNotifyOnlineFlag(false);
   }
 
   static ABBAurora::State previous_state;
   if (Mqtt->GetConnectStatus())
   {
-    if ( (!last_connect_status) ||
-         (!((previous_state.GlobalState == State.GlobalState) &&
+    if ( !((previous_state.GlobalState == State.GlobalState) &&
          (previous_state.InverterState == State.InverterState) &&
          (previous_state.Channel1State == State.Channel1State) &&
          (previous_state.Channel2State == State.Channel2State) &&
-         (previous_state.AlarmState == State.AlarmState))) )
+         (previous_state.AlarmState == State.AlarmState)) )
     {
       if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
       {
@@ -308,15 +319,13 @@ bool Solarmeter::Publish(void)
         return false;
       }
     }
-    previous_state = State;
-
     if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
+    previous_state = State;
   }
-  last_connect_status = Mqtt->GetConnectStatus();
 
   if (Log & static_cast<unsigned char>(LogLevelEnum::JSON))
   {
