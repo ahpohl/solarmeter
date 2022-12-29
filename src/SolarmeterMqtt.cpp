@@ -75,31 +75,14 @@ bool SolarmeterMqtt::SetTlsConnection(const std::string &cafile, const std::stri
 bool SolarmeterMqtt::Connect(const std::string &host, const int &port, const int &keepalive)
 {
   int rc = 0;
-  if ((rc = mosquitto_connect_async(Mosq, host.c_str(), port, keepalive)))
-  {
-    ErrorMessage = std::string("Mosquitto unable to connect: ") + mosquitto_strerror(rc);
-    return false;
-  }
-  int count = 0;
-  int timeout = 100;
-  while (!IsConnected)
-  {
-    if (!(ErrorMessage.empty()))
-    {
-      return false;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    mosquitto_loop(Mosq, 0, 1);
-    if (count > timeout)
-    {
-      ErrorMessage = "Mosquitto unable to connect: Timeout";
-      return false;
-    }
-    ++count;
-  }
   if ((rc = mosquitto_loop_start(Mosq)))
   {
     ErrorMessage = std::string("Mosquitto loop start failed: ") + mosquitto_strerror(rc);
+    return false;
+  }
+  if ((rc = mosquitto_connect_async(Mosq, host.c_str(), port, keepalive)))
+  {
+    ErrorMessage = std::string("Mosquitto unable to connect: ") + mosquitto_strerror(rc);
     return false;
   }
 

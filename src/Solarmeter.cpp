@@ -105,16 +105,7 @@ bool Solarmeter::Setup(const std::string &config)
     return false;
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  if (Mqtt->GetConnectStatus())
-  {
-    std::cout << "Solarmeter is online." << std::endl;
-  }
-  if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
-  {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
-  }
-
+  
   return true;
 }
 
@@ -249,29 +240,6 @@ bool Solarmeter::Receive(void)
 
 bool Solarmeter::Publish(void)
 {
-  static ABBAurora::State previous_state;
-  if (!((previous_state.GlobalState == State.GlobalState) &&
-        (previous_state.InverterState == State.InverterState) &&
-        (previous_state.Channel1State == State.Channel1State) &&
-        (previous_state.Channel2State == State.Channel2State) &&
-        (previous_state.AlarmState == State.AlarmState)))
-  {
-    std::ostringstream oss;
-    oss << "[{"
-      << "\"global_state\":\"" << State.GlobalState << "\"" << ","
-      << "\"inverter_state\":\"" << State.InverterState << "\"" << ","
-      << "\"ch1_state\":\"" << State.Channel1State << "\"" << ","
-      << "\"ch2_state\":\"" << State.Channel2State << "\"" << ","
-      << "\"alarm_state\":\"" << State.AlarmState << "\"" << "}]";
-
-    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
-    {
-      ErrorMessage = Mqtt->GetErrorMessage();
-      return false;
-    }
-  }
-  previous_state = State;
-
   unsigned long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   
   std::ios::fmtflags old_settings = Payload.flags();
@@ -305,16 +273,58 @@ bool Solarmeter::Publish(void)
     << "\"grid_standard\":\"" << Datagram.GridStandard << "\""
     << "}]";
 
+  std::ostringstream oss;
+  oss << "[{"
+    << "\"global_state\":\"" << State.GlobalState << "\"" << ","
+    << "\"inverter_state\":\"" << State.InverterState << "\"" << ","
+    << "\"ch1_state\":\"" << State.Channel1State << "\"" << ","
+    << "\"ch2_state\":\"" << State.Channel2State << "\"" << ","
+    << "\"alarm_state\":\"" << State.AlarmState << "\"" << "}]";
+
+  static bool last_connect_status = false;
+  if ( (!last_connect_status) && (Mqtt->GetConnectStatus()) )
+  {
+    std::cout << "Solarmeter is online." << std::endl;
+    if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+  }
+
+  static ABBAurora::State previous_state;
+  if (Mqtt->GetConnectStatus())
+  {
+    if ( (!last_connect_status) ||
+         (!((previous_state.GlobalState == State.GlobalState) &&
+         (previous_state.InverterState == State.InverterState) &&
+         (previous_state.Channel1State == State.Channel1State) &&
+         (previous_state.Channel2State == State.Channel2State) &&
+         (previous_state.AlarmState == State.AlarmState))) )
+    {
+      if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
+      {
+        ErrorMessage = Mqtt->GetErrorMessage();
+        return false;
+      }
+    }
+    previous_state = State;
+
+    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+  }
+  last_connect_status = Mqtt->GetConnectStatus();
+
   if (Log & static_cast<unsigned char>(LogLevelEnum::JSON))
   {
     std::cout << Payload.str() << std::endl;
-  }
-  if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
-  {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
+    std::cout << oss.str() << std::endl;
   }
   Payload.flags(old_settings);
+  
   return true;
 }
 
