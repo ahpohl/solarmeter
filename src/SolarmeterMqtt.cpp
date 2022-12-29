@@ -41,18 +41,6 @@ bool SolarmeterMqtt::Begin(void)
 
 bool SolarmeterMqtt::SetUserPassAuth(const std::string &user, const std::string &pass)
 {
-  /*
-  if (user.empty()) 
-  {
-    ErrorMessage = std::string("Mosquitto unable to enable password authentication: User argument empty.");
-    return false;
-  }
-  if (pass.empty())
-  {
-    ErrorMessage = std::string("Mosquitto unable to enable password authentication: Password argument empty.");
-    return false;
-  }
-  */
   int rc = 0;
   if ((rc = mosquitto_username_pw_set(Mosq, user.c_str(), pass.c_str())))
   {
@@ -81,30 +69,11 @@ bool SolarmeterMqtt::SetTlsConnection(const std::string &cafile, const std::stri
       return false;
     }
   }
-  /*
-  else
-  {
-    ErrorMessage = std::string("Mosquitto unable to enable TLS: Need either cafile or capath argument.");
-    return false;
-  }
-  */
   return true;
 }
 
 bool SolarmeterMqtt::Connect(const std::string &host, const int &port, const int &keepalive)
 {
-  /*
-  if (host.empty())
-  {
-    ErrorMessage = std::string("Mosquitto unable to connect: Mqtt host argument empty.");
-    return false;
-  }
-  if (!port)
-  {
-    ErrorMessage = std::string("Mosquitto unable to connect: Mqtt port argument empty.");
-    return false;
-  }
-  */
   int rc = 0;
   if ((rc = mosquitto_connect_async(Mosq, host.c_str(), port, keepalive)))
   {

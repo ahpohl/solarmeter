@@ -73,11 +73,6 @@ bool Solarmeter::Setup(const std::string &config)
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
-  {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
-  }
   if ((Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password")))
   {
     if (!Mqtt->SetUserPassAuth(Cfg->GetValue("mqtt_user"), Cfg->GetValue("mqtt_password")))
@@ -97,6 +92,11 @@ bool Solarmeter::Setup(const std::string &config)
   if (!(Cfg->KeyExists("mqtt_broker")) || !(Cfg->KeyExists("mqtt_port")) )
   {
     ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
+  {
+    ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
   if (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"), StringTo<double>(Cfg->GetValue("mqtt_port")), 60))
@@ -264,7 +264,7 @@ bool Solarmeter::Publish(void)
       << "\"ch2_state\":\"" << State.Channel2State << "\"" << ","
       << "\"alarm_state\":\"" << State.AlarmState << "\"" << "}]";
 
-    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 1, true)))
+    if (!(Mqtt->PublishMessage(oss.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
@@ -309,27 +309,11 @@ bool Solarmeter::Publish(void)
   {
     std::cout << Payload.str() << std::endl;
   }
-
-  static bool last_connect_status = true;
-  if (Mqtt->GetConnectStatus())
+  if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
   {
-    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, true)))
-    {
-      ErrorMessage = Mqtt->GetErrorMessage();
-      return false;
-    }
-    if (!last_connect_status)
-    {
-      if (!(Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true)))
-      {
-        ErrorMessage = Mqtt->GetErrorMessage();
-        return false;
-      }
-      std::cout << "Solarmeter is online." << std::endl;
-    }
+    ErrorMessage = Mqtt->GetErrorMessage();
+    return false;
   }
-  last_connect_status = Mqtt->GetConnectStatus();
- 
   Payload.flags(old_settings);
   return true;
 }
@@ -376,7 +360,6 @@ void Solarmeter::SetLogLevel(void)
   {
     Log = 0;
   }
-  //std::cout << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << ((int)Log & 0xFF) << std::endl;  
 }
 
 unsigned char Solarmeter::GetLogLevel(void) const
