@@ -1,12 +1,28 @@
 #include <iostream>
+#include <iomanip>
+#include <memory>
 #include <getopt.h>
 #include <csignal>
-#include <future>
-
+#include <thread>
+#include <chrono>
 #include <Solarmeter.h>
+
+volatile sig_atomic_t shutdown = false;
+
+void sig_handler(int)
+{
+  shutdown = true;
+}
 
 int main(int argc, char* argv[])
 {
+  struct sigaction action;
+  action.sa_handler = sig_handler;
+  sigemptyset(&action.sa_mask);
+  action.sa_flags = SA_RESTART;
+  sigaction(SIGINT, &action, NULL);
+  sigaction(SIGTERM, &action, NULL);
+  
   bool version = false;
   bool help = false;
   std::string config;
@@ -18,7 +34,7 @@ int main(int argc, char* argv[])
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char optString[] = "hVc:";
+  const char optString[] = "hVvc:";
   int opt = 0;
   int longIndex = 0;
 
@@ -64,66 +80,37 @@ int main(int argc, char* argv[])
   std::cout << "Solarmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  sigset_t sigset;
-  sigemptyset(&sigset);
-  sigaddset(&sigset, SIGINT);
-  sigaddset(&sigset, SIGTERM);
-  pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
-
-  std::atomic<bool> shutdown_requested(false);
-  std::mutex cv_mutex;
-  std::condition_variable cv;
-
-  auto signal_handler = [&]()
-  {
-    int signum = 0;
-    sigwait(&sigset, &signum);
-    shutdown_requested.store(true);
-    cv.notify_all();
-    return signum;
-  }; 
-
-  auto ft_signal_handler = std::async(std::launch::async, signal_handler);
- 
   std::unique_ptr<Solarmeter> meter(new Solarmeter());
+  
   if (!meter->Setup(config))
   {
     std::cout << meter->GetErrorMessage() << std::endl;
     return EXIT_FAILURE;
   }
 
-  auto worker = [&]()
-  {
-    int timeout = 0;
+  static int timeout = 0;
 
-    while (shutdown_requested.load() == false)
+  while (shutdown == false)
+  {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+	  if (!meter->Receive())
+	  {
+      if (timeout < 5)
+      {
+	      std::cout << meter->GetErrorMessage() << std::endl;
+        ++timeout;
+      }
+      continue;
+ 	  }
+    else
     {
-      std::unique_lock lock(cv_mutex);
-	    if (!meter->Receive())
-	    {
-        if (timeout < 5)
-        {
-	        std::cout << meter->GetErrorMessage() << std::endl;
-          ++timeout;
-        }
-        continue;
- 	    }
-      else
-      {
-        timeout = 0;
-      }
-      if (!meter->Publish())
-      {
-        std::cout << meter->GetErrorMessage() << std::endl;
-      }
-      cv.wait_for(lock,
-                  std::chrono::seconds(1),
-                  [&]() { return shutdown_requested.load(); });
+      timeout = 0;
     }
-    return shutdown_requested.load();
-  };
-  
-  auto worker_thread = (std::async(std::launch::async, worker));
+    if (!meter->Publish())
+    {
+      std::cout << meter->GetErrorMessage() << std::endl;
+    }
+  }
 
   return EXIT_SUCCESS;
 }
