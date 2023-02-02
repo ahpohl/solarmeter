@@ -8,6 +8,8 @@ CREATE TABLE "archive" (
   plan_id INTEGER NOT NULL,
   energy_1d DOUBLE PRECISION,
   total DOUBLE PRECISION,
+  power_avg DOUBLE PRECISION,
+  power_max DOUBLE PRECISION,
   CONSTRAINT sensor_id FOREIGN KEY (sensor_id) REFERENCES sensors (id),
   CONSTRAINT plan_id FOREIGN KEY (plan_id) REFERENCES plan (id)
 );

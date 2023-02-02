@@ -10,20 +10,24 @@ SELECT
   energy_1d AS energy,
   energy_1d * payment AS credit,
   total,
-  payment
+  payment,
+  power_avg,
+  power_max
 FROM archive JOIN plan ON archive.plan_id = plan.id
-GROUP BY bucket_1d, energy_1d, total, payment
+GROUP BY bucket_1d, energy_1d, total, payment, power_avg, power_max
 UNION
 SELECT
   bucket_1d AS time,
   energy_1d AS energy,
   energy_1d * payment AS credit,
   total,
-  payment
+  payment,
+  power_avg,
+  power_max
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
 -- insert end time of archive
-WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-08-30 02:00:00+02'
-GROUP BY bucket_1d, energy_1d, total, payment
+WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2023-01-10 01:00:00+01'
+GROUP BY bucket_1d, energy_1d, total, payment, power_avg, power_max
 ORDER BY time;
 
 -- index
