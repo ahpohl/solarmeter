@@ -43,12 +43,14 @@ CREATE MATERIALIZED VIEW monthly_view
 AS
 SELECT
   timescaledb_experimental.time_bucket_ng('1 month', time) AS time,
-  sum(energy) AS energy,
+  sum(energy) AS energy_sum,
   sum(credit) AS credit,
   first(total, time) AS total,
-  avg(energy) AS avg,
-  min(energy) AS min,
-  max(energy) AS max
+  min(energy) AS energy_min,
+  avg(energy) AS energy_avg,
+  max(energy) AS energy_max,
+  avg(power_avg) AS power_avg,
+  max(power_max) AS power_max
 FROM daily_view
 GROUP BY timescaledb_experimental.time_bucket_ng('1 month', time)
 ORDER BY time;
@@ -67,9 +69,14 @@ AS
 SELECT
   timescaledb_experimental.time_bucket_ng('1 year', time) AS time,
   count(*) as days,
-  sum(energy) AS energy,
+  sum(energy) AS energy_sum,
   sum(credit) AS credit,
-  first(total, time) AS total
+  first(total, time) AS total,
+  min(energy) AS energy_min,
+  avg(energy) AS energy_avg,
+  max(energy) AS energy_max,
+  avg(power_avg) AS power_avg,
+  max(power_max) AS power_max
 FROM daily_view
 GROUP BY timescaledb_experimental.time_bucket_ng('1 year', time)
 ORDER BY time;
