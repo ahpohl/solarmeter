@@ -24,7 +24,7 @@ WITH NO DATA;
 SELECT add_continuous_aggregate_policy('cagg_daily',
   start_offset => INTERVAL '3 days',
   end_offset => INTERVAL '1 hour',
-  schedule_interval => '1 hour');
+  schedule_interval => '1 day');
 
 --
 -- average power
@@ -45,12 +45,12 @@ WITH NO DATA;
 
 -- refresh policy
 SELECT add_continuous_aggregate_policy('cagg_power',
-  start_offset => INTERVAL '3 day',
+  start_offset => INTERVAL '3 hours',
   end_offset => INTERVAL '1 minute',
   schedule_interval => '5 minutes');
 
 -- retention policy
-SELECT add_retention_policy('cagg_power', INTERVAL '7 days');
+SELECT add_retention_policy('cagg_power', INTERVAL '3 days');
 
 -- grant
 GRANT SELECT ON TABLE cagg_power TO grafana;

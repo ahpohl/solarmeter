@@ -50,7 +50,7 @@ CREATE TABLE "live" (
 );
 
 SELECT create_hypertable('live', 'time');
-SELECT add_retention_policy('live', INTERVAL '7 days');
+SELECT add_retention_policy('live', INTERVAL '10 days');
 
 INSERT INTO sensors(id, serial_num, part_num, mfg_date, firmware, inverter_type, grid_standard) VALUES
 (1, '126014', '-3G79-', 'Year 10 Week 20', 'C.0.2.2', 'Aurora 4.2kW new', 'VDE0126');

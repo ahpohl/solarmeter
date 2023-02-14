@@ -1,5 +1,9 @@
 # Solarmeter changelog
 
+## v0.1.5 - 2023-xx-xx
+* add average power and max power columns to database schema
+* updated retention policies
+
 ## v0.1.4 - 2022-12-29
 * fix mqtt status topic not retained
 * automatically reconnect to broker
