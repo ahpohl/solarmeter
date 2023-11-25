@@ -8,7 +8,7 @@
 #include <vector>
 #include "Solarmeter.h"
 
-const std::set<std::string> Solarmeter::ValidKeys {"log_level", "mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "payment_kwh", "serial_device"};
+const std::set<std::string> Solarmeter::ValidKeys {"log_level", "mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "payment_kwh", "serial_device", "max_read_iterations", "character_read_delay_µs"};
 
 Solarmeter::Solarmeter(void)
 {
@@ -58,7 +58,12 @@ bool Solarmeter::Setup(const std::string &config)
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (!Inverter->Setup(Cfg->GetValue("serial_device")))
+  if (!(Cfg->KeyExists("max_read_iterations") && !Cfg->KeyExists("character_read_delay_µs")))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Inverter->Setup(Cfg->GetValue("serial_device"), B19200, StringTo<int>(Cfg->GetValue("max_read_iterations")), StringTo<int>(Cfg->GetValue("character_read_delay_µs"))))
   {
     ErrorMessage = Inverter->GetErrorMessage();
     return false;
