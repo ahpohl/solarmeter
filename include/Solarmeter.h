@@ -1,11 +1,10 @@
 #ifndef Solarmeter_h
 #define Solarmeter_h
-#include <ABBAurora.h>
-#include "SolarmeterMqtt.h"
 #include "SolarmeterConfig.h"
+#include "SolarmeterMqtt.h"
+#include <ABBAurora.h>
 
-class Solarmeter
-{
+class Solarmeter {
   static const std::set<std::string> ValidKeys;
 
 private:
@@ -18,10 +17,9 @@ private:
   std::string ErrorMessage;
   unsigned char Log;
 
-  template <typename T>
-  T StringTo(const std::string &str) const;
+  template <typename T> T StringTo(const std::string &str) const;
   void SetLogLevel(void);
- 
+
 public:
   Solarmeter(void);
   ~Solarmeter(void);
@@ -30,9 +28,8 @@ public:
   bool Publish(void);
   std::string GetErrorMessage(void) const;
   unsigned char GetLogLevel(void) const;
-  
-  struct Datagram
-  {
+
+  struct Datagram {
     std::string SerialNum;    // Serial number
     std::string PartNum;      // Part number
     std::string MfgDate;      // Manufacturing date
@@ -52,7 +49,7 @@ public:
     float Efficiency;         // AC/DC conversion efficiency [%]
     float InverterTemp;       // Inverter temperature [°C]
     float BoosterTemp;        // Booster temperature [°C]
-    float RIso;               // Isolation resistance [MOhm] 
+    float RIso;               // Isolation resistance [MOhm]
     float TotalEnergy;        // Lifetime total energy [kWh]
     float PaymentKwh;         // Payment per kWh
   } Datagram;
