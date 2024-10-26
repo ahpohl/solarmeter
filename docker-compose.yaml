@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ${PWD}/resources/config/solarmeter_example.conf:/etc/solarmeter.conf
+      - ${PWD}/solarmeter.conf:/etc/solarmeter.conf
     devices:
       - /dev/ttyUSB0
+    # solarmeter:uucp
     user: 964:987
