@@ -1,8 +1,13 @@
 # Solarmeter changelog
 
-## v0.1.5 - 2023-xx-xx
-* add average power and max power columns to database schema
-* updated retention policies
+## v0.1.5 - 2024-10-26
+* add docker-compose support
+* fix build errors
+* update readme
+* add cross compile support
+* add llvm clang code formatting
+* postgres: add average power and max power columns to database schema
+* postgres: updated retention policies
 
 ## v0.1.4 - 2022-12-29
 * fix mqtt status topic not retained

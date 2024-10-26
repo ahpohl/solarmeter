@@ -1,0 +1,12 @@
+services:
+  solarmeter:
+    image: solarmeter
+    container_name: solarmeter
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${PWD}/resources/config/solarmeter_example.conf:/etc/solarmeter.conf
+    devices:
+      - /dev/ttyUSB0
+    user: 964:987
